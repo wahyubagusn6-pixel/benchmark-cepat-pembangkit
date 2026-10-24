@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Benchmark Cepat Kinerja Pembangkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+:root{
+  --ink:#14212B; --steel:#3B5566; --muted:#5B6E79; --mist:#E7EDF0; --paper:#F4F7F8; --panel:#FFFFFF; --line:#D6DFE3;
+  --teal:#0F5E66; --teal-2:#137C86; --teal-soft:#E2F0F1;
+  --flag:#F2B705; --flag-bg:#FFF4CC; --flag-ink:#5C4500;
+  --good:#1F7A4D; --good-bg:#E3F3EA; --bad:#B3261E; --bad-bg:#FBE9E7;
+  --sky:#D6E6EB;
+  --font:"Barlow","Segoe UI",system-ui,-apple-system,Arial,sans-serif;
+  --cond:"Barlow Condensed","Arial Narrow","Barlow","Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--font)}
+a{color:var(--teal)}
+:focus-visible{outline:3px solid var(--teal-2);outline-offset:2px;border-radius:4px}
+.hidden{display:none!important}
+
+/* ---------- hero ---------- */
+.hero{background:var(--sky);border-bottom:1px solid #C3D5DC}
+.hero-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);align-items:end;gap:8px;padding:0 20px}
+.hero-text{padding:44px 0 40px}
+.hero h1{font-family:var(--cond);font-weight:600;font-size:clamp(2.3rem,4.4vw,3.6rem);line-height:1.02;letter-spacing:-.01em;margin:0 0 14px}
+.lede{font-size:1.08rem;line-height:1.55;color:#24394A;margin:0 0 22px;max-width:46ch}
+.hero-cta{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hero-note{font-size:.88rem;color:var(--muted);margin:12px 0 0}
+.hero-art{border:1px solid #BFD2D9;border-bottom:none;border-radius:14px 14px 0 0;overflow:hidden;margin-top:28px}
+.hero-art svg{display:block;width:100%;height:auto}
+@media (max-width:860px){.hero-in{grid-template-columns:1fr}.hero-text{padding:30px 0 6px}.hero-art{margin-top:10px}}
+
+.plume{animation:rise 7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+.plume.b{animation-delay:-2.3s}.plume.c{animation-delay:-4.6s}
+@keyframes rise{0%{transform:translateY(4px) scale(.92);opacity:.0}25%{opacity:.85}100%{transform:translateY(-16px) scale(1.12);opacity:0}}
+@media (prefers-reduced-motion:reduce){.plume{animation:none;opacity:.7}html{scroll-behavior:auto}}
+
+/* ---------- buttons ---------- */
+.btn{font:inherit;font-weight:600;font-size:.98rem;display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:6px;border:1.5px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none;line-height:1.2}
+.btn:hover{background:rgba(20,33,43,.06)}
+.btn.primary{background:var(--teal);border-color:var(--teal);color:#fff}
+.btn.primary:hover{background:var(--teal-2);border-color:var(--teal-2)}
+.btn.quiet{border-color:transparent;color:var(--muted);padding-left:8px;padding-right:8px}
+.btn.small{font-size:.9rem;padding:8px 14px}
+
+/* ---------- stepper ---------- */
+.stepper{position:sticky;top:0;z-index:5;background:rgba(244,247,248,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.stepper ol{list-style:none;margin:0 auto;padding:10px 20px;max-width:1240px;display:flex;gap:6px;flex-wrap:wrap}
+.stepper a{display:flex;align-items:center;gap:9px;padding:6px 12px 6px 6px;border-radius:999px;text-decoration:none;color:var(--ink);font-weight:600;font-size:.95rem}
+.stepper a:hover{background:var(--mist)}
+.stepper .dot{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;border:2px solid var(--steel);font-family:var(--cond);font-weight:700;font-size:1rem;color:var(--steel);background:#fff}
+.stepper a.done .dot{background:var(--teal);border-color:var(--teal);color:#fff}
+.stepper a.locked{color:#8A9AA3;cursor:default}
+.stepper a.locked .dot{border-color:#B5C3CA;color:#8A9AA3}
+.stepper .sep{align-self:center;width:22px;height:2px;background:var(--line)}
+@media (max-width:640px){.stepper .sep{display:none}.stepper a{font-size:.88rem}}
+
+/* ---------- layout ---------- */
+main{max-width:1240px;margin:0 auto;padding:26px 20px 48px;display:grid;gap:22px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:22px 24px;min-width:0}
+h2{font-family:var(--cond);font-weight:600;font-size:1.75rem;line-height:1.1;margin:0 0 6px}
+h3{font-family:var(--cond);font-weight:600;font-size:1.3rem;line-height:1.15;margin:0 0 6px}
+.help{color:var(--muted);margin:0 0 14px;max-width:72ch}
+section{scroll-margin-top:70px}
+
+/* input */
+.input-panel{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:28px}
+@media (max-width:960px){.input-panel{grid-template-columns:1fr}}
+.input-panel > *,.res > *,.score > *{min-width:0}
+textarea{width:100%;min-height:210px;font:13px/1.5 Consolas,"Cascadia Mono",Menlo,monospace;border:1.5px solid var(--line);border-radius:8px;padding:12px;resize:vertical;color:var(--ink);background:#FBFCFD}
+textarea:focus{outline:none;border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.msg{font-size:.95rem;margin-top:10px;min-height:1.4em}
+.msg.err{color:var(--bad);font-weight:600}.msg.ok{color:var(--good);font-weight:600}
+.format-guide{background:var(--mist);border-radius:8px;padding:18px 20px;align-self:start}
+.format-guide ul{margin:12px 0 0;padding-left:18px;color:#2C4250;font-size:.95rem}
+.format-guide li{margin-bottom:6px}
+table.mini{border-collapse:collapse;font-size:.8rem;width:100%;background:#fff;border-radius:6px;overflow:hidden}
+table.mini th,table.mini td{border:1px solid var(--line);padding:4px 6px;text-align:left;white-space:nowrap}
+table.mini th{background:#F7F9FA;font-weight:600}
+.mini-wrap{overflow-x:auto}
+
+/* summary */
+.summary{display:grid;gap:16px}
+.score{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:860px){.score{grid-template-columns:1fr}}
+.tile{border:1.5px solid var(--line);border-radius:10px;padding:16px 18px;background:#fff}
+.tile.lead{border-color:var(--teal);background:linear-gradient(0deg,#fff,#fff)}
+.tile .name{font-family:var(--cond);font-weight:700;font-size:1.5rem;line-height:1}
+.tile .name small{font-family:var(--font);font-weight:500;font-size:.85rem;color:var(--muted);margin-left:6px}
+.tile .big{font-family:var(--cond);font-weight:600;font-size:2.6rem;line-height:1;margin:10px 0 4px}
+.tile .big span{font-size:1.1rem;font-weight:500;color:var(--muted);margin-left:4px}
+.meter{display:flex;gap:4px;margin:8px 0 10px}
+.meter i{flex:1;height:8px;border-radius:2px;background:var(--mist)}
+.tile.a .meter i.on{background:var(--teal)}
+.tile.b .meter i.on{background:var(--steel)}
+.tile .wins{font-size:.88rem;color:#2C4250;line-height:1.4}
+.tile.flags{background:var(--flag-bg);border-color:#E9CF6E}
+.tile.flags .big{color:var(--flag-ink)}
+.tile.flags a{font-weight:600;color:var(--flag-ink)}
+.take{font-size:1.05rem;line-height:1.55;margin:0;max-width:95ch}
+.take .alert{display:block;color:var(--bad);font-weight:600;margin-bottom:6px}
+.facts{display:flex;gap:8px;flex-wrap:wrap}
+.fact{font-size:.85rem;padding:4px 10px;border-radius:999px;background:var(--mist);color:#2C4250}
+
+/* results table */
+.res{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:22px;align-items:start}
+@media (max-width:1000px){.res{grid-template-columns:1fr}}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);margin:-4px 0 12px}
+.legend b{font-weight:600;color:var(--ink)}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.tw{overflow-x:auto}
+table.res-t{width:100%;border-collapse:collapse;font-size:.95rem;font-variant-numeric:tabular-nums lining-nums}
+.res-t th{text-align:left;color:var(--muted);font-weight:600;font-size:.82rem;padding:6px 10px;border-bottom:1.5px solid var(--line);white-space:nowrap}
+.res-t th.co{font-family:var(--cond);font-size:1.15rem;font-weight:700;text-align:center;border-bottom:3px solid var(--teal);color:var(--ink);padding-bottom:4px}
+.res-t th.co.b{border-bottom-color:var(--steel)}
+.res-t th.gap{border-bottom:none;width:8px;padding:0}
+.res-t td{padding:9px 10px;border-bottom:1px solid #E6ECEF}
+.res-t tbody tr:hover td{background:#FAFCFC}
+.res-t td.lbl{font-weight:500;min-width:190px}
+.res-t td.lbl small{display:block;color:var(--muted);font-size:.78rem;font-weight:400}
+.res-t td.n,.res-t th.n{text-align:right;white-space:nowrap}
+.res-t td.cell{cursor:pointer;border-radius:4px}
+.res-t td.cell:hover{background:var(--teal-soft)}
+.res-t td.cell.sel{box-shadow:inset 0 0 0 2px var(--teal)}
+.res-t td.cell.flag{background:var(--flag-bg);color:var(--flag-ink);font-weight:600}
+.res-t td.cell.flag::after{content:"⚑";margin-left:5px;font-size:.78rem;color:#B58700}
+.res-t td.dash{color:#A3B1B8;text-align:right}
+.better{display:inline-block;font-size:.8rem;padding:2px 9px;border-radius:999px;font-weight:700;white-space:nowrap}
+.better.a{background:var(--teal-soft);color:var(--teal)}
+.better.b{background:#E5ECF0;color:var(--steel)}
+
+/* trace */
+.trace{position:sticky;top:66px}
+.trace .empty{color:var(--muted)}
+.trace .empty svg{display:block;margin:6px 0 10px}
+.trace h4{font-family:var(--cond);font-weight:600;font-size:1.2rem;margin:0}
+.trace .who{color:var(--muted);font-size:.9rem}
+.trace .val{font-family:var(--cond);font-weight:700;font-size:2.4rem;color:var(--teal);line-height:1.05;margin:6px 0 10px}
+.kv{display:grid;gap:10px;font-size:.9rem}
+.kv .k{font-size:.8rem;color:var(--muted);font-weight:600;margin-bottom:3px}
+.kv .box{background:var(--paper);border:1px solid #E3EAED;border-radius:6px;padding:8px 10px}
+.kv .box + .box{margin-top:6px}
+.kv .box.warn{background:var(--flag-bg);border-color:#EDD47D;color:var(--flag-ink)}
+.kv .src{display:block;color:var(--muted);font-size:.82rem;margin-top:2px}
+
+/* flags */
+.flags{display:grid;gap:12px}
+.flag-item{border:1.5px solid #EDD47D;background:#FFFCF0;border-radius:8px;padding:14px 16px}
+.flag-item.info{border-color:#C9DCE2;background:#F7FAFB}
+.flag-item .t{display:flex;gap:10px;align-items:baseline;font-weight:600;font-size:1.02rem}
+.tag{flex:none;font-size:.78rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--flag);color:#2A2000}
+.flag-item.info .tag{background:#D7E6EB;color:var(--steel)}
+.flag-item p{margin:6px 0 10px;font-size:.93rem;color:#2C4250;max-width:110ch}
+.flag-item label{display:block;font-size:.82rem;color:var(--muted);font-weight:600;margin-bottom:4px}
+.flag-item input{width:100%;font:inherit;font-size:.93rem;border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;background:#fff}
+.flag-item input:focus{outline:none;border-color:var(--teal-2);box-shadow:0 0 0 3px var(--teal-soft)}
+
+/* export */
+.out textarea{min-height:120px;margin-top:12px}
+.copy-msg{font-size:.92rem}
+.copy-msg.ok{color:var(--good);font-weight:600}
+
+footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="hero-in">
+    <div class="hero-text">
+      <h1>Benchmark Cepat<br>Kinerja Pembangkit</h1>
+      <p class="lede">Tempel data pack dua perusahaan pembangkit. Rasio dihitung dengan rumus tetap, setiap angka bisa ditelusuri ke sumbernya, dan beda definisi ditandai untuk Anda putuskan.</p>
+      <div class="hero-cta">
+        <button class="btn primary" id="btnSampleHero">Coba dengan data contoh</button>
+        <a class="btn" href="#input">Tempel data saya</a>
+      </div>
+      <p class="hero-note">Data contoh: GPSC vs B.Grimm Power, Jan–Jun 2025 dan Jan–Jun 2026.</p>
+    </div>
+    <div class="hero-art">
+      <svg viewBox="0 0 720 340" role="img" aria-label="Ilustrasi pembangkit listrik tenaga gas uap kogenerasi dengan menara transmisi dan pipa uap ke kawasan industri">
+        <defs>
+          <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C9DEE5"/><stop offset="1" stop-color="#EEF1EA"/></linearGradient>
+        </defs>
+        <rect width="720" height="340" fill="url(#skyG)"/>
+        <circle cx="626" cy="104" r="30" fill="#F4D27A" opacity=".75"/>
+        <path d="M0 236 C120 214 220 228 330 218 C440 208 540 224 720 204 L720 340 L0 340Z" fill="#BBCDD4"/>
+        <path d="M0 262 C160 250 300 258 460 250 C580 244 650 252 720 246 L720 340 L0 340Z" fill="#94ADB7"/>
+        <rect y="278" width="720" height="62" fill="#557080"/>
+        <rect y="304" width="720" height="36" fill="#3B5566"/>
+        <path d="M0 318 H720" stroke="#6F8996" stroke-width="2" stroke-dasharray="18 14"/>
+
+        <!-- transmission towers -->
+        <g fill="none" stroke="#2E4553" stroke-width="2" stroke-linejoin="round">
+          <path d="M36 280 L47 160 L53 160 L64 280 M40 238 L60 238 M43 204 L57 204 M36 280 L57 204 M64 280 L43 204 M40 238 L55 172 M60 238 L45 172"/>
+          <path d="M30 172 H70 M34 186 H66"/>
+          <path d="M140 280 L148 190 L152 190 L160 280 M143 245 L157 245 M138 280 L155 214 M160 280 L145 214"/>
+          <path d="M134 200 H166 M137 212 H163"/>
+        </g>
+        <g fill="none" stroke="#2E4553" stroke-width="1.1">
+          <path d="M30 172 Q85 196 134 200 M70 172 Q115 192 166 200 M34 186 Q88 206 137 212 M66 186 Q112 204 163 212"/>
+          <path d="M134 200 Q180 222 214 232 M166 200 Q196 218 222 232 M163 212 Q194 228 218 238"/>
+        </g>
+        <!-- switchyard -->
+        <g stroke="#2E4553" stroke-width="1.6" fill="none">
+          <path d="M206 278 V232 H230 V278 M206 246 H230 M218 232 V278"/>
+        </g>
+
+        <!-- cooling tower -->
+        <path d="M240 280 C254 244 254 214 246 184 L292 184 C284 214 284 244 298 280 Z" fill="#D4DEE2" stroke="#9AAFB8" stroke-width="1.5"/>
+        <ellipse cx="269" cy="184" rx="23" ry="4" fill="#C2D0D6" stroke="#9AAFB8" stroke-width="1.5"/>
+        <g class="plume" fill="#FFFFFF" opacity=".8"><circle cx="262" cy="170" r="11"/><circle cx="276" cy="164" r="13"/><circle cx="268" cy="150" r="12"/></g>
+        <g class="plume b" fill="#FFFFFF" opacity=".7"><circle cx="272" cy="136" r="14"/><circle cx="286" cy="128" r="12"/></g>
+
+        <!-- turbine hall -->
+        <path d="M304 210 L312 198 H452 L460 210 Z" fill="#C5D3D9"/>
+        <rect x="304" y="210" width="156" height="70" fill="#EEF2F3" stroke="#9AAFB8" stroke-width="1.5"/>
+        <rect x="304" y="228" width="156" height="8" fill="#0F5E66"/>
+        <g fill="#A3BAC3"><rect x="314" y="246" width="14" height="10"/><rect x="336" y="246" width="14" height="10"/><rect x="358" y="246" width="14" height="10"/><rect x="380" y="246" width="14" height="10"/><rect x="402" y="246" width="14" height="10"/><rect x="424" y="246" width="14" height="10"/></g>
+        <rect x="372" y="262" width="22" height="18" fill="#7E97A2"/>
+
+        <!-- duct + HRSG -->
+        <rect x="458" y="232" width="14" height="18" fill="#B7C7CE" stroke="#9AAFB8"/>
+        <rect x="470" y="150" width="40" height="130" fill="#DCE4E8" stroke="#9AAFB8" stroke-width="1.5"/>
+        <g stroke="#B9C8CE"><path d="M470 176 H510 M470 202 H510 M470 228 H510 M470 254 H510"/></g>
+        <rect x="516" y="164" width="34" height="116" fill="#D1DCE0" stroke="#9AAFB8" stroke-width="1.5"/>
+        <g stroke="#B9C8CE"><path d="M516 190 H550 M516 216 H550 M516 242 H550"/></g>
+        <path d="M480 150 V140 H500 V150" fill="#C5D3D9" stroke="#9AAFB8"/>
+
+        <!-- stacks with aviation bands -->
+        <rect x="483" y="56" width="14" height="94" fill="#A2B4BC"/>
+        <rect x="483" y="56" width="14" height="6" fill="#B3261E"/><rect x="483" y="68" width="14" height="6" fill="#B3261E"/><rect x="483" y="80" width="14" height="6" fill="#B3261E"/>
+        <rect x="527" y="78" width="12" height="86" fill="#A2B4BC"/>
+        <rect x="527" y="78" width="12" height="6" fill="#B3261E"/><rect x="527" y="90" width="12" height="6" fill="#B3261E"/>
+        <g class="plume" fill="#FFFFFF" opacity=".75"><circle cx="490" cy="44" r="8"/><circle cx="498" cy="34" r="11"/></g>
+        <g class="plume c" fill="#FFFFFF" opacity=".7"><circle cx="506" cy="22" r="13"/><circle cx="520" cy="16" r="10"/></g>
+        <g class="plume b" fill="#FFFFFF" opacity=".7"><circle cx="533" cy="66" r="7"/><circle cx="540" cy="56" r="10"/><circle cx="550" cy="46" r="12"/></g>
+
+        <!-- cogeneration steam pipe to industrial customer -->
+        <path d="M550 206 H588 V240 H616" fill="none" stroke="#0F5E66" stroke-width="5" stroke-linejoin="round"/>
+        <g fill="#2E4553"><rect x="566" y="208" width="3" height="72"/><rect x="590" y="242" width="3" height="38"/><rect x="606" y="242" width="3" height="38"/></g>
+        <path d="M616 280 V238 L634 222 V238 L652 222 V238 L670 222 V238 L688 222 V238 L706 222 V280 Z" fill="#C6D2D7" stroke="#9AAFB8" stroke-width="1.5"/>
+        <rect x="694" y="196" width="8" height="26" fill="#A2B4BC"/>
+        <g fill="#A3BAC3"><rect x="626" y="252" width="12" height="9"/><rect x="646" y="252" width="12" height="9"/><rect x="666" y="252" width="12" height="9"/><rect x="686" y="252" width="12" height="9"/></g>
+      </svg>
+    </div>
+  </div>
+</header>
+
+<nav class="stepper" aria-label="Langkah pemakaian">
+  <ol>
+    <li><a href="#input" class="step" data-step="1"><span class="dot">1</span>Tempel data</a></li>
+    <li class="sep" aria-hidden="true"></li>
+    <li><a href="#hasil" class="step locked" data-step="2" aria-disabled="true"><span class="dot">2</span>Lihat hasil</a></li>
+    <li class="sep" aria-hidden="true"></li>
+    <li><a href="#keputusan" class="step locked" data-step="3" aria-disabled="true"><span class="dot">3</span>Putuskan tanda ⚑</a></li>
+    <li class="sep" aria-hidden="true"></li>
+    <li><a href="#salin" class="step locked" data-step="4" aria-disabled="true"><span class="dot">4</span>Salin hasil</a></li>
+  </ol>
+</nav>
+
+<main>
+  <section id="input" class="panel input-panel">
+    <div>
+      <h2>Tempel data pack</h2>
+      <p class="help">Salin tabel dari Google Sheet atau Excel, lalu tempel di kotak ini. Satu baris per indikator, satu kolom per perusahaan dan periode.</p>
+      <label for="src" class="hidden">Data pack</label>
+      <textarea id="src" spellcheck="false" placeholder="Tempel tabel di sini (Ctrl+V)…"></textarea>
+      <div class="btns">
+        <button class="btn primary" id="btnCalc">Hitung benchmark</button>
+        <button class="btn" id="btnSample">Isi data contoh</button>
+        <button class="btn quiet" id="btnClear">Kosongkan</button>
+      </div>
+      <div class="msg" id="msg" role="status" aria-live="polite"></div>
+    </div>
+    <aside class="format-guide" aria-label="Bentuk tabel yang dikenali">
+      <h3>Bentuk tabel yang dikenali</h3>
+      <div class="mini-wrap">
+        <table class="mini">
+          <tr><th>Indikator</th><th>GPSC 6M/25</th><th>GPSC 6M/26</th><th>BGRIM 6M/25</th><th>…</th><th>Satuan</th><th>Sumber</th></tr>
+          <tr><td>Total pendapatan</td><td>44.646,05</td><td>39.000,59</td><td>29.345,53</td><td>…</td><td>THB juta</td><td>SET Snapshot</td></tr>
+        </table>
+      </div>
+      <ul>
+        <li>Judul kolom angka: nama perusahaan lalu periode, misalnya GPSC 6M/26.</li>
+        <li>Format angka Indonesia (1.234,56) dan internasional (1,234.56) dikenali otomatis.</li>
+        <li>Isi kolom Sumber agar setiap angka bisa ditelusuri.</li>
+      </ul>
+    </aside>
+  </section>
+
+  <section id="hasil" class="hidden">
+    <div class="panel summary" id="sumCard">
+      <h2>Hasil benchmark</h2>
+      <div class="score" id="score"></div>
+      <p class="take" id="take"></p>
+      <div class="facts" id="chips"></div>
+    </div>
+    <div class="res" id="resWrap" style="margin-top:22px">
+      <div class="panel">
+        <h3>Tabel rasio setara</h3>
+        <p class="help">Klik angka mana pun untuk melihat rumus, input, dan sumbernya.</p>
+        <div class="legend"><span><i class="sw" style="background:var(--flag-bg);border:1px solid #E9CF6E"></i><b>⚑</b> perlu keputusan analis</span><span><i class="sw" style="background:var(--teal-soft)"></i>label = lebih baik pada periode terakhir</span></div>
+        <div class="tw"><table class="res-t" id="tbl"></table></div>
+      </div>
+      <aside class="panel trace" id="trace" aria-live="polite">
+        <h3>Jejak angka</h3>
+        <div id="traceBody" class="empty"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section id="keputusan" class="panel hidden">
+    <h2>Putuskan tanda ⚑</h2>
+    <p class="help">Alat ini tidak menyesuaikan definisi secara otomatis. Tulis keputusan Anda di tiap tanda; catatan ikut tersalin di langkah berikutnya. <span id="flagCount"></span></p>
+    <div class="flags" id="flags"></div>
+  </section>
+
+  <section id="salin" class="panel out hidden">
+    <h2>Salin hasil</h2>
+    <p class="help">Tabel untuk Sheet/Excel (dipisah tab) atau ringkasan Markdown untuk catatan paparan, lengkap dengan rumus, sumber, dan keputusan Anda.</p>
+    <div class="btns" style="margin-top:0">
+      <button class="btn primary" id="btnCopyTsv">Salin tabel untuk Sheet/Excel</button>
+      <button class="btn" id="btnCopyMd">Salin ringkasan Markdown</button>
+      <span class="copy-msg" id="copyMsg" role="status" aria-live="polite"></span>
+    </div>
+    <textarea id="outBox" readonly class="hidden" aria-label="Teks hasil untuk disalin"></textarea>
+  </section>
+</main>
+<footer>Prototipe v3. Semua angka dihitung di halaman ini dengan rumus tetap, tanpa AI. Sumber data contoh: SET Listed Company Snapshot 6M2026; GPSC MD&amp;A 2Q2026; B.Grimm MD&amp;A 1Q2026 serta rilis Q2 2025 dan Q2 2026.</footer>
+<script>
+const SAMPLE = [
+"Indikator\tGPSC 6M/25\tGPSC 6M/26\tBGRIM 6M/25\tBGRIM 6M/26\tSatuan\tSumber",
+"Total pendapatan\t44646.05\t39000.59\t29345.53\t28389.57\tTHB juta\tSET Listed Company Snapshot 6M2026",
+"EBITDA\t9456\t9705\t7457\t7304\tTHB juta\tGPSC MD&A 2Q2026; B.Grimm MD&A 1Q2026 + rilis Q2 2025 dan Q2 2026",
+"Laba bersih pemilik induk\t3159.29\t3538.45\t660.78\t1397.15\tTHB juta\tSET Listed Company Snapshot 6M2026",
+"Laba normalisasi\t3653\t3804\t1224\t985\tTHB juta\tGPSC MD&A 2Q2026; B.Grimm MD&A 1Q2026 + rilis Q2 2025 dan Q2 2026",
+"Margin EBITDA\t21.2\t24.9\t25.4\t25.7\t%\tEBITDA perusahaan / total pendapatan SET",
+"Margin laba bersih\t7.94\t9.63\t4.95\t7.4\t%\tSET Listed Company Snapshot 6M2026",
+"ROE TTM\t4.51\t6.32\t4.39\t6.92\t%\tSET Listed Company Snapshot 6M2026",
+"D/E\t1.28\t1.21\t2.56\t2.93\tx\tSET Listed Company Snapshot 6M2026",
+"Arus kas operasi\t10041.42\t6919.59\t8739.53\t3882.22\tTHB juta\tSET Listed Company Snapshot 6M2026",
+"Arus kas investasi\t-5135.98\t-677\t-3866.5\t-12955.41\tTHB juta\tSET Listed Company Snapshot 6M2026",
+"Net interest-bearing debt / equity (30 Jun 2026)\t\t0.72\t\t2.16\tx\tGPSC MD&A 2Q2026; B.Grimm rilis Q2 2026"
+].join("\n");
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+/* ---------- parsing ---------- */
+const clean = (raw) => String(raw == null ? "" : raw).trim().replace(/[−–]/g, "-").replace(/\s/g, "").replace(/%$/, "").replace(/x$/i, "");
+/* Deteksi format angka seluruh tabel: Indonesia (1.234,56) atau internasional (1,234.56) */
+function detectLocale(raws) {
+  let id = 0, en = 0;
+  raws.map(clean).forEach((s) => {
+    if (!s) return;
+    if (/^-?\(?\d{1,3}(\.\d{3})+,\d+\)?$/.test(s)) id += 2;
+    else if (/^-?\(?\d{1,3}(,\d{3})+\.\d+\)?$/.test(s)) en += 2;
+    else if (/,\d{1,2}\)?$/.test(s)) id++;
+    else if (/\.\d{1,2}\)?$/.test(s)) en++;
+    else if (/^-?\d{1,3}(\.\d{3}){2,}$/.test(s)) id++;
+    else if (/^-?\d{1,3}(,\d{3}){2,}$/.test(s)) en++;
+  });
+  return { loc: id > en ? "id" : en > id ? "en" : "?", mixed: id > 0 && en > 0 };
+}
+function parseNum(raw, loc) {
+  if (raw == null) return null;
+  let s = clean(raw);
+  if (!s || s === "-" || s === "—" || /^n\/?a$/i.test(s)) return null;
+  let neg = false;
+  if (/^\(.*\)$/.test(s)) { neg = true; s = s.slice(1, -1); }
+  if (s.startsWith("-")) { neg = !neg; s = s.slice(1); }
+  const hasDot = s.includes("."), hasCom = s.includes(",");
+  if (loc === "id") s = s.replace(/\./g, "").replace(",", ".");
+  else if (loc === "en") s = s.replace(/,/g, "");
+  else if (hasDot && hasCom) {
+    s = s.lastIndexOf(",") > s.lastIndexOf(".") ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  } else if (hasCom) {
+    const p = s.split(",");
+    if (p.length > 2) s = p.join("");
+    else if (p[1].length === 3 && p[0] !== "0" && p[0] !== "") s = p.join("");
+    else s = p.join(".");
+  } else if (hasDot) {
+    const p = s.split(".");
+    if (p.length > 2) s = p.join("");
+  }
+  const v = Number(s);
+  if (!isFinite(v)) return null;
+  return neg ? -v : v;
+}
+
+function splitRows(text) {
+  const lines = text.replace(/\r/g, "").split("\n").filter((l) => l.trim());
+  let d = "\t";
+  if (!lines.some((l) => l.includes("\t"))) d = lines.some((l) => l.includes("|")) ? "|" : ";";
+  return lines
+    .map((l) => {
+      const c = l.split(d).map((x) => x.trim());
+      if (d === "|") { if (c[0] === "") c.shift(); if (c[c.length - 1] === "") c.pop(); }
+      return c;
+    })
+    .filter((r) => !r.every((c) => /^:?-{2,}:?$/.test(c)));
+}
+
+const MAP = [
+  ["EBITDA_M", /margin\s*ebitda|ebitda\s*margin/i],
+  ["NPM", /margin\s*laba\s*bersih|net\s*profit\s*margin|\bnpm\b/i],
+  ["NDE", /net\s*(interest|debt)|interest[-\s]*bearing/i],
+  ["DE", /\bd\s*\/\s*e\b|debt\s*to\s*equity|\bder\b/i],
+  ["ROE", /\broe\b/i],
+  ["NNI", /normalisasi|normali[sz]ed|\bnnp\b|core\s*profit/i],
+  ["NI", /laba\s*bersih|net\s*(profit|income)/i],
+  ["EBITDA", /ebitda/i],
+  ["CFO", /arus\s*kas\s*(dari\s*)?operasi|operating\s*cash|\bcfo\b/i],
+  ["CFI", /arus\s*kas\s*(dari\s*)?investasi|investing\s*cash|\bcfi\b/i],
+  ["CAPEX", /capex|belanja\s*modal/i],
+  ["REV", /pendapatan|revenue/i],
+];
+const mapIndicator = (name) => (MAP.find(([, re]) => re.test(name)) || [null])[0];
+
+function parseDataPack(text) {
+  const rows = splitRows(text);
+  if (rows.length < 2) throw new Error("Tabel kosong. Tempel minimal baris judul kolom dan satu baris data.");
+  const head = rows[0];
+  let iSat = -1, iSum = -1;
+  const cols = [];
+  head.forEach((h, i) => {
+    if (i === 0) return;
+    if (/satuan|unit/i.test(h)) iSat = i;
+    else if (/sumber|source/i.test(h)) iSum = i;
+    else if (h) {
+      const m = h.trim().match(/^(.*\S)\s+(\S+)$/);
+      cols.push(m ? { i, co: m[1], per: m[2] } : { i, co: h.trim(), per: "?" });
+    }
+  });
+  const cos = [...new Set(cols.map((c) => c.co))];
+  const pers = [...new Set(cols.map((c) => c.per))];
+  if (cos.length < 2) throw new Error('Perlu minimal 2 perusahaan. Judul kolom harus berbentuk "<Perusahaan> <Periode>", mis. "GPSC 6M/26".');
+  if (pers.length < 2 || pers.includes("?")) throw new Error('Perlu 2 periode per perusahaan. Judul kolom harus berbentuk "<Perusahaan> <Periode>", mis. "GPSC 6M/25" dan "GPSC 6M/26".');
+  const items = {}, unmapped = [];
+  const L = detectLocale(rows.slice(1).flatMap((r) => cols.map((c) => r[c.i])));
+  rows.slice(1).forEach((r, ri) => {
+    const name = r[0] || "";
+    const key = mapIndicator(name);
+    const vals = {};
+    cols.forEach((c) => (vals[c.co + "|" + c.per] = parseNum(r[c.i], L.loc)));
+    const rec = { name, unit: iSat >= 0 ? r[iSat] || "" : "", src: iSum >= 0 ? r[iSum] || "" : "", vals, row: ri + 2 };
+    if (key && !items[key]) items[key] = rec;
+    else if (!key && name) unmapped.push(name);
+  });
+  return { cos, pers, items, unmapped, nRows: rows.length - 1, hasSrcCol: iSum >= 0, loc: L.loc, mixed: L.mixed };
+}
+
+/* ---------- formatting ---------- */
+const nf = (v, d) => Math.abs(v).toLocaleString("id-ID", { minimumFractionDigits: d, maximumFractionDigits: d });
+function fmt(v, unit, signed) {
+  if (v == null || !isFinite(v)) return "—";
+  const sign = v < 0 ? "−" : signed && v > 0 ? "+" : "";
+  if (unit === "%") return sign + nf(v, signed ? 1 : 2) + "%";
+  if (unit === "x") return sign + nf(v, 2) + "x";
+  return sign + nf(v, 0);
+}
+const fmtRaw = (v, unit) => (v == null ? "—" : (v < 0 ? "−" : "") + nf(v, Math.abs(v) < 100 ? 2 : 2) + (unit ? " " + unit : ""));
+
+/* ---------- compute ---------- */
+const LOCNAME = { id: "Indonesia (1.234,56)", en: "internasional (1,234.56)", "?": "tidak terdeteksi" };
+let STATE = null;
+
+function compute(dp) {
+  const [A, B] = dp.cos;
+  const p0 = dp.pers[dp.pers.length - 2], p1 = dp.pers[dp.pers.length - 1];
+  const it = dp.items;
+  const v = (k, co, p) => (it[k] ? it[k].vals[co + "|" + p] : null);
+  const inp = (k, co, p) => ({ k, label: it[k] ? it[k].name : k, co, p, val: v(k, co, p), unit: it[k] ? it[k].unit : "", src: it[k] ? it[k].src : "", row: it[k] ? it[k].row : null });
+  const growth = (a, b) => (a == null || b == null || b === 0 ? null : (a / b - 1) * 100);
+  const ratio = (a, b) => (a == null || b == null || b === 0 ? null : (a / b) * 100);
+  const moneyUnit = (it.CFO && it.CFO.unit) || (it.REV && it.REV.unit) || "";
+  const hasCapex = !!it.CAPEX;
+
+  const SPEC = [
+    { id: "REVG", label: "Pertumbuhan pendapatan YoY", unit: "%", signed: true, better: "high", core: true, need: ["REV"], growthOnly: true,
+      calc: (co) => growth(v("REV", co, p1), v("REV", co, p0)), formula: `(Pendapatan ${p1} ÷ Pendapatan ${p0}) − 1`, inputs: (co) => [inp("REV", co, p1), inp("REV", co, p0)] },
+    { id: "EBM", label: "Margin EBITDA", unit: "%", better: "high", core: true, need: ["EBITDA", "REV"], rep: "EBITDA_M",
+      calc: (co, p) => ratio(v("EBITDA", co, p), v("REV", co, p)), formula: "EBITDA ÷ Total pendapatan", inputs: (co, p) => [inp("EBITDA", co, p), inp("REV", co, p)] },
+    { id: "NPM", label: "Margin laba bersih", unit: "%", better: "high", core: true, need: ["NI", "REV"], rep: "NPM",
+      calc: (co, p) => ratio(v("NI", co, p), v("REV", co, p)), formula: "Laba bersih ÷ Total pendapatan", inputs: (co, p) => [inp("NI", co, p), inp("REV", co, p)] },
+    { id: "NIG", label: "Pertumbuhan laba bersih YoY", unit: "%", signed: true, better: "high", core: false, need: ["NI"], growthOnly: true,
+      calc: (co) => growth(v("NI", co, p1), v("NI", co, p0)), formula: `(Laba bersih ${p1} ÷ Laba bersih ${p0}) − 1`, inputs: (co) => [inp("NI", co, p1), inp("NI", co, p0)] },
+    { id: "NNIG", label: "Pertumbuhan laba normalisasi YoY", unit: "%", signed: true, better: "high", core: true, need: ["NNI"], growthOnly: true,
+      calc: (co) => growth(v("NNI", co, p1), v("NNI", co, p0)), formula: `(Laba normalisasi ${p1} ÷ Laba normalisasi ${p0}) − 1`, inputs: (co) => [inp("NNI", co, p1), inp("NNI", co, p0)] },
+    { id: "GAP", label: "Selisih laba dilaporkan vs normalisasi", hint: "makin kecil makin bersih", unit: "%", signed: true, better: "absLow", core: false, need: ["NI", "NNI"],
+      calc: (co, p) => { const a = v("NI", co, p), b = v("NNI", co, p); return a == null || b == null || b === 0 ? null : ((a - b) / Math.abs(b)) * 100; },
+      formula: "(Laba bersih − Laba normalisasi) ÷ |Laba normalisasi|", inputs: (co, p) => [inp("NI", co, p), inp("NNI", co, p)] },
+    { id: "FCF", label: hasCapex ? "Arus kas bebas" : "Arus kas bebas (proksi)", hint: hasCapex ? "" : "capex tidak tersedia", unit: moneyUnit, better: "high", core: true, need: hasCapex ? ["CFO", "CAPEX"] : ["CFO", "CFI"],
+      calc: (co, p) => { const a = v("CFO", co, p), b = hasCapex ? v("CAPEX", co, p) : v("CFI", co, p); return a == null || b == null ? null : hasCapex ? a - Math.abs(b) : a + b; },
+      formula: hasCapex ? "Arus kas operasi − Capex" : "Arus kas operasi + Arus kas investasi (proksi, karena capex tidak ada)", inputs: (co, p) => hasCapex ? [inp("CFO", co, p), inp("CAPEX", co, p)] : [inp("CFO", co, p), inp("CFI", co, p)] },
+    { id: "DE", label: "D/E", hint: "dilaporkan, tidak dihitung ulang", unit: "x", better: "low", core: true, need: ["DE"],
+      calc: (co, p) => v("DE", co, p), formula: "Diambil apa adanya dari data pack (ekuitas & liabilitas tidak tersedia untuk dihitung ulang)", inputs: (co, p) => [inp("DE", co, p)] },
+    { id: "ROE", label: "ROE TTM", hint: "dilaporkan", unit: "%", better: "high", core: true, need: ["ROE"],
+      calc: (co, p) => v("ROE", co, p), formula: "Diambil apa adanya dari data pack", inputs: (co, p) => [inp("ROE", co, p)] },
+  ];
+
+  const rows = [], cells = {}, flags = [];
+  const key = (id, co, p) => id + "|" + co + "|" + p;
+  SPEC.forEach((s) => {
+    if (!s.need.every((k) => it[k])) return;
+    const vals = {};
+    [A, B].forEach((co) => [p0, p1].forEach((p) => {
+      const val = s.growthOnly && p === p0 ? null : s.growthOnly ? s.calc(co) : s.calc(co, p);
+      vals[co + "|" + p] = val;
+      if (s.growthOnly && p === p0) return;
+      const c = { id: s.id, label: s.label, co, p, val, unit: s.unit, signed: s.signed, formula: s.formula, inputs: s.growthOnly ? s.inputs(co) : s.inputs(co, p), flags: [], notes: [] };
+      if (s.rep && it[s.rep]) {
+        const r = v(s.rep, co, p);
+        c.rep = { val: r, src: it[s.rep].src, name: it[s.rep].name };
+      }
+      cells[key(s.id, co, p)] = c;
+    }));
+    let better = null;
+    const a = vals[A + "|" + p1], b = vals[B + "|" + p1];
+    if (a != null && b != null && a !== b) {
+      if (s.better === "high") better = a > b ? A : B;
+      else if (s.better === "low") better = a < b ? A : B;
+      else if (s.better === "absLow") better = Math.abs(a) < Math.abs(b) ? A : B;
+    }
+    rows.push({ ...s, vals, better });
+  });
+
+  /* flags */
+  const addFlag = (f) => { flags.push(f); f.cells.forEach((k) => cells[k] && (f.sev === "info" ? cells[k].notes : cells[k].flags).push(f.id)); };
+  rows.filter((r) => r.rep && it[r.rep]).forEach((r) => {
+    const diffs = [];
+    [A, B].forEach((co) => [p0, p1].forEach((p) => {
+      const c = cells[key(r.id, co, p)];
+      if (c && c.rep && c.rep.val != null && c.val != null && Math.abs(c.val - c.rep.val) > 0.5)
+        diffs.push({ k: key(r.id, co, p), txt: `${co} ${p}: dihitung ${fmt(c.val, "%")} vs dilaporkan ${fmt(c.rep.val, "%")}` });
+    }));
+    const huge = diffs.some((d) => { const c = cells[d.k]; return Math.abs(c.rep.val) > 1 && (Math.abs(c.val) < Math.abs(c.rep.val) / 10 || Math.abs(c.val) > Math.abs(c.rep.val) * 10); });
+    if (diffs.length) addFlag({ id: "F_" + r.id, sev: "warn", title: `${r.label}: angka dihitung berbeda > 0,5 poin dari yang dilaporkan`,
+      detail: diffs.map((d) => d.txt).join("; ") + `. Sumber angka dilaporkan: ${it[r.rep].src || "tidak ada"}. ` + (huge ? "Selisihnya terlalu besar untuk beda definisi: cek dulu format angka dan satuan di data pack." : "Kemungkinan beda pembilang/penyebut (mis. laba termasuk kepentingan non-pengendali). Tentukan basis yang dipakai di paparan."), cells: diffs.map((d) => d.k) });
+  });
+  [A, B].forEach((co) => {
+    const g1 = cells[key("NIG", co, p1)], g2 = cells[key("NNIG", co, p1)];
+    if (g1 && g2 && g1.val != null && g2.val != null && Math.sign(g1.val) !== Math.sign(g2.val))
+      addFlag({ id: "F_Q_" + co, sev: "warn", title: `Kualitas laba ${co}: arah laba bersih dan laba normalisasi berlawanan`,
+        detail: `Laba bersih ${fmt(g1.val, "%", true)} tetapi laba normalisasi ${fmt(g2.val, "%", true)} (${p1} vs ${p0}). Perubahan laba bersih didorong pos non-normal; jangan pakai pertumbuhan laba bersih sebagai ukuran kinerja inti.`, cells: [key("NIG", co, p1), key("NNIG", co, p1)] });
+    const gaps = [p0, p1].map((p) => cells[key("GAP", co, p)]).filter((c) => c && c.val != null && Math.abs(c.val) > 20);
+    if (gaps.length) addFlag({ id: "F_G_" + co, sev: "warn", title: `${co}: laba dilaporkan jauh dari laba normalisasi`,
+      detail: gaps.map((c) => `${c.p}: ${fmt(c.val, "%", true)}`).join("; ") + ". Selisih di atas 20% — rinci pos non-normalnya sebelum menyimpulkan.", cells: gaps.map((c) => key("GAP", co, c.p)) });
+  });
+  if (rows.some((r) => r.id === "FCF") && !hasCapex)
+    addFlag({ id: "F_FCF", sev: "warn", title: "Arus kas bebas memakai proksi",
+      detail: "Capex tidak ada di data pack, jadi arus kas bebas = arus kas operasi + arus kas investasi. Arus kas investasi bisa memuat akuisisi atau penempatan dana, bukan hanya capex. Tambahkan baris Capex bila tersedia.",
+      cells: [A, B].flatMap((co) => [p0, p1].map((p) => key("FCF", co, p))) });
+  const odd = Object.entries(cells).filter(([, c]) => c.val != null && ((["EBM", "NPM"].includes(c.id) && (Math.abs(c.val) > 100 || (c.rep && c.rep.val != null && Math.abs(c.rep.val) > 1 && (Math.abs(c.val) < Math.abs(c.rep.val) / 10 || Math.abs(c.val) > Math.abs(c.rep.val) * 10)))) || (["REVG", "NIG", "NNIG", "GAP"].includes(c.id) && Math.abs(c.val) > 500)));
+  if (odd.length) {
+    addFlag({ id: "F_ODD", sev: "warn", title: "Angka janggal: cek format angka dan satuan sebelum memakai hasil",
+      detail: odd.map(([, c]) => `${c.label} ${c.co} ${c.p}: ${fmt(c.val, c.unit, c.signed)}`).join("; ") + `. Nilai sejauh ini biasanya berasal dari salah baca pemisah ribuan/desimal atau satuan yang berbeda, bukan beda definisi. Format angka yang dipakai: ${LOCNAME[dp.loc]}.`, cells: odd.map(([k]) => k) });
+    flags.unshift(flags.pop());
+  }
+  if (dp.mixed) addFlag({ id: "F_MIX", sev: "warn", title: "Format angka campuran", detail: `Sebagian angka memakai koma desimal dan sebagian titik desimal. Semua dibaca sebagai ${LOCNAME[dp.loc]}; samakan format di sumber data.`, cells: [] });
+  const mgmt = ["EBITDA", "NNI"].filter((k) => it[k]);
+  if (mgmt.length)
+    addFlag({ id: "F_DEF", sev: "info", title: "Metrik versi manajemen: catat definisinya",
+      detail: `${mgmt.map((k) => it[k].name).join(" dan ")} memakai definisi masing-masing perusahaan (sumber: ${[...new Set(mgmt.map((k) => it[k].src))].join(" | ")}). Contoh: EBITDA bisa memasukkan bagian laba JV. Tulis definisi yang dipakai tiap perusahaan.`,
+      cells: [A, B].flatMap((co) => [p0, p1].flatMap((p) => [key("EBM", co, p), key("GAP", co, p)])) });
+  const noSrc = Object.values(it).filter((x) => !x.src).map((x) => x.name);
+  if (noSrc.length) addFlag({ id: "F_SRC", sev: "warn", title: "Angka tanpa sumber", detail: `Baris tanpa sumber: ${noSrc.join(", ")}. Isi kolom Sumber agar setiap angka bisa ditelusuri.`, cells: [] });
+  const units = ["REV", "EBITDA", "NI", "NNI", "CFO", "CFI", "CAPEX"].filter((k) => it[k]).map((k) => [it[k].name, (it[k].unit || "").toLowerCase()]);
+  if (new Set(units.map((u) => u[1])).size > 1) addFlag({ id: "F_UNIT", sev: "warn", title: "Satuan berbeda antarbaris uang", detail: units.map((u) => `${u[0]}: ${u[1] || "kosong"}`).join("; ") + ". Samakan satuan sebelum menghitung.", cells: [] });
+
+  /* summary */
+  const core = rows.filter((r) => r.core && r.better);
+  const nm = (r) => { const l = r.label.replace(" (proksi)", ""); return /^[A-Z][a-z]/.test(l) ? l[0].toLowerCase() + l.slice(1) : l; };
+  const winsA = core.filter((r) => r.better === A).map(nm), winsB = core.filter((r) => r.better === B).map(nm);
+  const lead = winsA.length >= winsB.length ? [A, winsA, B, winsB] : [B, winsB, A, winsA];
+  var take = `Pada ${p1}, <b>${esc(lead[0])}</b> unggul di <b>${lead[1].length} dari ${core.length}</b> rasio inti (${esc(lead[1].join(", "))})`;
+  take += lead[3].length ? `; ${esc(lead[2])} unggul di ${esc(lead[3].join(", "))}.` : ".";
+  [A, B].forEach((co) => {
+    const g1 = cells[key("NIG", co, p1)], g2 = cells[key("NNIG", co, p1)];
+    if (flags.some((f) => f.id === "F_Q_" + co))
+      take += ` Laba bersih ${esc(co)} ${fmt(g1.val, "%", true)}, tetapi laba normalisasinya ${fmt(g2.val, "%", true)}: perubahan laba berasal dari pos non-normal.`;
+  });
+  const nWarn = flags.filter((f) => f.sev === "warn").length;
+  if (flags.some((f) => f.id === "F_ODD")) take = `<span style="color:var(--bad)"><b>Periksa dulu:</b> ada angka janggal (lihat tanda pertama), jadi kesimpulan ini belum bisa dipakai.</span> ` + take;
+
+  return { A, B, p0, p1, rows, cells, flags, take, nWarn, dp, notes: STATE ? STATE.notes : {} };
+}
+
+/* ---------- render (v3) ---------- */
+const TRACE_EMPTY = '<svg width="46" height="46" viewBox="0 0 46 46" aria-hidden="true"><circle cx="23" cy="23" r="21" fill="#E2F0F1"/><path d="M13 29 l7 -7 l5 4 l8 -10" fill="none" stroke="#0F5E66" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Klik angka di tabel untuk melihat rumus, input, dan sumbernya.';
+const lc = (l) => { l = l.replace(" (proksi)", ""); return /^[A-Z][a-z]/.test(l) ? l[0].toLowerCase() + l.slice(1) : l; };
+const smooth = () => (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth");
+
+function setSteps(done) {
+  document.querySelectorAll(".stepper a.step").forEach((a) => {
+    const n = +a.dataset.step;
+    const locked = !done && n > 1;
+    a.classList.toggle("locked", locked);
+    a.setAttribute("aria-disabled", String(locked));
+    a.classList.toggle("done", done && n <= 2);
+  });
+}
+
+function render() {
+  const S = STATE, { A, B, p0, p1 } = S;
+  ["#hasil", "#keputusan", "#salin"].forEach((s) => $(s).classList.remove("hidden"));
+  setSteps(true);
+
+  const core = S.rows.filter((r) => r.core && r.better);
+  const wins = (co) => core.filter((r) => r.better === co);
+  const tile = (co, other, cls) => {
+    const w = wins(co), lead = w.length > wins(other).length;
+    return `<div class="tile ${cls}${lead ? " lead" : ""}"><div class="name">${esc(co)}${lead ? "<small>unggul di lebih banyak rasio inti</small>" : ""}</div>` +
+      `<div class="big">${w.length}<span>dari ${core.length} rasio inti lebih baik</span></div>` +
+      `<div class="meter" aria-hidden="true">${core.map((r) => `<i class="${r.better === co ? "on" : ""}" title="${esc(r.label)}"></i>`).join("")}</div>` +
+      `<div class="wins">${w.length ? esc(w.map((r) => lc(r.label)).join(", ")) : "Belum unggul di rasio inti mana pun"}</div></div>`;
+  };
+  const flagsTile = `<div class="tile flags"><div class="name">Perlu keputusan</div><div class="big">${S.nWarn}<span>tanda ⚑</span></div>` +
+    `<div class="wins">${S.flags.length - S.nWarn} catatan definisi. <a href="#keputusan">Buka daftar tanda</a></div></div>`;
+  $("#score").innerHTML = tile(A, B, "a") + tile(B, A, "b") + flagsTile;
+
+  $("#take").innerHTML = S.take.replace('<span style="color:var(--bad)">', '<span class="alert">') + (S.nWarn ? ` <b>${S.nWarn} tanda ⚑</b> perlu keputusan analis sebelum dipaparkan.` : "");
+  const facts = [`${S.dp.nRows} baris data dibaca`, `Format angka ${LOCNAME[S.dp.loc]}`, `${S.rows.length} rasio dihitung`, `Periode ${p0} dan ${p1}`];
+  if (S.dp.unmapped.length) facts.push(`Tidak dikenali: ${S.dp.unmapped.join(", ")}`);
+  $("#chips").innerHTML = facts.map((c) => `<span class="fact">${esc(c)}</span>`).join("");
+
+  let h = `<thead><tr><th></th><th class="co" colspan="2">${esc(A)}</th><th class="co b" colspan="2">${esc(B)}</th><th></th></tr>`;
+  h += `<tr><th>Rasio</th><th class="n">${esc(p0)}</th><th class="n">${esc(p1)}</th><th class="n">${esc(p0)}</th><th class="n">${esc(p1)}</th><th>Lebih baik ${esc(p1)}</th></tr></thead><tbody>`;
+  S.rows.forEach((r) => {
+    h += `<tr><td class="lbl">${esc(r.label)}${r.hint ? `<small>${esc(r.hint)}</small>` : ""}</td>`;
+    [A, B].forEach((co) => [p0, p1].forEach((p) => {
+      const k = r.id + "|" + co + "|" + p, c = S.cells[k];
+      if (!c) { h += `<td class="dash" title="Butuh data periode sebelumnya">—</td>`; return; }
+      h += `<td class="n cell${c.flags.length ? " flag" : ""}" data-k="${esc(k)}" tabindex="0" role="button" aria-label="${esc(r.label + " " + co + " " + p)}">${fmt(c.val, r.unit, r.signed)}</td>`;
+    }));
+    h += `<td>${r.better ? `<span class="better ${r.better === A ? "a" : "b"}">${esc(r.better)}</span>` : "—"}</td></tr>`;
+  });
+  $("#tbl").innerHTML = h + "</tbody>";
+  $("#tbl").querySelectorAll("td.cell").forEach((td) => {
+    td.addEventListener("click", () => showTrace(td.dataset.k, td));
+    td.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); showTrace(td.dataset.k, td); } });
+  });
+
+  $("#flagCount").textContent = `Ada ${S.nWarn} tanda dan ${S.flags.length - S.nWarn} catatan.`;
+  $("#flags").innerHTML = S.flags.map((f, i) => `<div class="flag-item ${f.sev === "info" ? "info" : ""}"><div class="t"><span class="tag">${f.sev === "info" ? "Catatan" : "⚑ Keputusan"}</span>${esc(f.title)}</div><p>${esc(f.detail)}</p>` +
+    `<label for="note-${i}">Keputusan atau catatan Anda</label><input id="note-${i}" data-f="${f.id}" placeholder="Misalnya: pakai angka dihitung; definisi EBITDA tanpa bagian laba JV" value="${esc(S.notes[f.id] || "")}"></div>`).join("");
+  $("#flags").querySelectorAll("input").forEach((i) => i.addEventListener("input", () => (S.notes[i.dataset.f] = i.value)));
+  $("#outBox").classList.add("hidden");
+  $("#copyMsg").textContent = "";
+  $("#traceBody").className = "empty";
+  $("#traceBody").innerHTML = TRACE_EMPTY;
+}
+
+function showTrace(k, td) {
+  const S = STATE, c = S.cells[k];
+  document.querySelectorAll("td.cell.sel").forEach((x) => x.classList.remove("sel"));
+  td.classList.add("sel");
+  let h = `<h4>${esc(c.label)}</h4><div class="who">${esc(c.co)}, periode ${esc(c.p)}</div><div class="val">${fmt(c.val, c.unit, c.signed)}</div><div class="kv">`;
+  h += `<div><div class="k">Rumus</div><div class="box">${esc(c.formula)}</div></div>`;
+  h += `<div><div class="k">Input</div>${c.inputs.map((x) => `<div class="box">${esc(x.label)}, ${esc(x.co)} ${esc(x.p)} = <b>${esc(fmtRaw(x.val, x.unit))}</b><span class="src">Sumber: ${esc(x.src || "tidak ada")}${x.row ? `, baris ${x.row} data pack` : ""}</span></div>`).join("")}</div>`;
+  if (c.rep) h += `<div><div class="k">Dibanding angka dilaporkan</div><div class="box${c.rep.val != null && c.val != null && Math.abs(c.val - c.rep.val) > 0.5 ? " warn" : ""}">${esc(c.rep.name)}: <b>${fmt(c.rep.val, "%")}</b>, selisih ${c.rep.val == null || c.val == null ? "—" : nf(c.val - c.rep.val, 2) + " poin"}<span class="src">Sumber: ${esc(c.rep.src)}</span></div></div>`;
+  if (c.flags.length) h += `<div><div class="k">Tanda</div>${c.flags.map((id) => `<div class="box warn">⚑ ${esc(S.flags.find((f) => f.id === id).title)}</div>`).join("")}</div>`;
+  if (c.notes.length) h += `<div><div class="k">Catatan</div>${c.notes.map((id) => `<div class="box">${esc(S.flags.find((f) => f.id === id).title)}</div>`).join("")}</div>`;
+  $("#traceBody").className = "";
+  $("#traceBody").innerHTML = h + "</div>";
+  if (window.innerWidth < 1000) $("#trace").scrollIntoView({ behavior: smooth(), block: "start" });
+}
+
+/* ---------- export ---------- */
+function plainTake() { const d = document.createElement("div"); d.innerHTML = $("#take").innerHTML; return d.textContent; }
+function buildTsv() {
+  const S = STATE, { A, B, p0, p1 } = S;
+  const lines = [["Rasio", "Satuan", `${A} ${p0}`, `${A} ${p1}`, `${B} ${p0}`, `${B} ${p1}`, `Lebih baik ${p1}`, "Rumus", "Tanda"].join("\t")];
+  S.rows.forEach((r) => {
+    const vals = [A, B].flatMap((co) => [p0, p1].map((p) => { const c = S.cells[r.id + "|" + co + "|" + p]; return c && c.val != null ? c.val.toFixed(2).replace(".", ",") : ""; }));
+    const fl = [...new Set([A, B].flatMap((co) => [p0, p1].flatMap((p) => (S.cells[r.id + "|" + co + "|" + p] || { flags: [] }).flags)))].length ? "⚑" : "";
+    lines.push([r.label, r.unit, ...vals, r.better || "", r.formula, fl].join("\t"));
+  });
+  lines.push("", "Tanda\tDetail\tKeputusan/catatan analis");
+  S.flags.forEach((f) => lines.push([f.title, f.detail, S.notes[f.id] || ""].join("\t")));
+  return lines.join("\n");
+}
+function buildMd() {
+  const S = STATE, { A, B, p0, p1 } = S;
+  let m = `## Benchmark ${A} vs ${B} · ${p0} → ${p1}\n\n**Draf kesimpulan:** ${plainTake()}\n\n| Rasio | ${A} ${p0} | ${A} ${p1} | ${B} ${p0} | ${B} ${p1} | Lebih baik |\n|---|---:|---:|---:|---:|---|\n`;
+  S.rows.forEach((r) => {
+    m += `| ${r.label} | ` + [A, B].flatMap((co) => [p0, p1].map((p) => { const c = S.cells[r.id + "|" + co + "|" + p]; return c ? fmt(c.val, r.unit, r.signed) + (c.flags.length ? " ⚑" : "") : "—"; })).join(" | ") + ` | ${r.better || "—"} |\n`;
+  });
+  m += `\n**Perlu keputusan analis**\n` + S.flags.map((f) => `- ${f.title}: ${f.detail}${S.notes[f.id] ? `\n  - Keputusan: ${S.notes[f.id]}` : ""}`).join("\n");
+  m += `\n\n**Rumus**\n` + S.rows.map((r) => `- ${r.label}: ${r.formula}`).join("\n");
+  m += `\n\n**Sumber data pack**\n` + [...new Set(Object.values(S.dp.items).map((x) => x.src).filter(Boolean))].map((x) => `- ${x}`).join("\n");
+  return m;
+}
+async function copyOut(text, label) {
+  const box = $("#outBox");
+  box.value = text;
+  try {
+    await navigator.clipboard.writeText(text);
+    box.classList.add("hidden");
+    $("#copyMsg").className = "copy-msg ok";
+    $("#copyMsg").textContent = `${label} tersalin. Tempel di tujuan (Ctrl+V).`;
+  } catch (e) {
+    box.classList.remove("hidden");
+    box.focus(); box.select();
+    $("#copyMsg").className = "copy-msg";
+    $("#copyMsg").textContent = "Browser menolak salin otomatis: teks sudah dipilih di bawah, tekan Ctrl+C.";
+  }
+}
+
+/* ---------- wire (v3) ---------- */
+function run() {
+  const msg = $("#msg");
+  try {
+    const dp = parseDataPack($("#src").value);
+    STATE = compute(dp);
+    if (!STATE.rows.length) throw new Error("Tidak ada rasio yang bisa dihitung. Pastikan ada baris Total pendapatan, EBITDA, Laba bersih, dan seterusnya.");
+    render();
+    msg.className = "msg ok";
+    msg.textContent = `Terbaca ${dp.nRows} baris, format angka ${LOCNAME[dp.loc]}, ${STATE.rows.length} rasio dihitung. Hasil ada di bawah.`;
+    $("#hasil").scrollIntoView({ behavior: smooth(), block: "start" });
+  } catch (e) {
+    msg.className = "msg err";
+    msg.textContent = e.message;
+  }
+}
+function loadSample() { $("#src").value = SAMPLE; run(); }
+$("#btnCalc").addEventListener("click", run);
+$("#btnSample").addEventListener("click", loadSample);
+$("#btnSampleHero").addEventListener("click", loadSample);
+$("#btnClear").addEventListener("click", () => {
+  $("#src").value = ""; $("#msg").textContent = "";
+  ["#hasil", "#keputusan", "#salin"].forEach((s) => $(s).classList.add("hidden"));
+  setSteps(false); $("#src").focus();
+});
+document.querySelectorAll(".stepper a.step").forEach((a) => a.addEventListener("click", (e) => {
+  if (!a.classList.contains("locked")) return;
+  e.preventDefault();
+  const m = $("#msg"); m.className = "msg";
+  m.textContent = "Tempel data atau pakai data contoh, lalu tekan Hitung benchmark untuk membuka langkah ini.";
+  $("#input").scrollIntoView({ behavior: smooth(), block: "start" });
+}));
+$("#btnCopyTsv").addEventListener("click", () => copyOut(buildTsv(), "Tabel"));
+$("#btnCopyMd").addEventListener("click", () => copyOut(buildMd(), "Ringkasan"));
+$("#traceBody").innerHTML = TRACE_EMPTY;
+setSteps(false);
+</script>
+</body>
+</html>
