@@ -664,11 +664,10 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color
   <section id="input" class="panel input-panel">
     <div>
       <h2>Masukkan data pack</h2>
-      <p class="help">Tempel tabel dari Google Sheet atau Excel, unggah file (Excel, PDF, Word, PowerPoint, gambar), atau ambil dari tautan web. Angka dari file dan tautan disusun otomatis menjadi data pack yang bisa Anda periksa sebelum dihitung.</p>
+      <p class="help">Tempel tabel dari Google Sheet atau Excel, atau unggah file Excel/CSV. Angka dari file disusun otomatis menjadi data pack yang bisa Anda periksa sebelum dihitung.</p>
       <div class="src-tabs" role="tablist" aria-label="Sumber data pack">
         <button type="button" role="tab" aria-selected="true" data-tab="paste"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 4V2.8h6V4M8.5 10h7M8.5 14h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tempel tabel</button>
         <button type="button" role="tab" aria-selected="false" data-tab="file"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unggah file</button>
-        <button type="button" role="tab" aria-selected="false" data-tab="link"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>Tautan web</button>
       </div>
       <div class="tabpanel" data-panel="paste">
         <label for="src" class="hidden">Data pack</label>
@@ -682,16 +681,12 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color
       </div>
       <div class="tabpanel" data-panel="file" hidden>
         <label class="drop" id="drop">
-          <input type="file" id="fileIn" multiple accept=".xlsx,.xls,.xlsm,.ods,.csv,.tsv,.txt,.pdf,.docx,.pptx,.png,.jpg,.jpeg,.webp,.bmp,.html,.htm">
+          <input type="file" id="fileIn" multiple accept=".xlsx,.xls,.xlsm,.csv,.tsv">
           <svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.6 1.6A3.8 3.8 0 0 1 17.5 18" fill="none" stroke="#0F5E66" stroke-width="1.8" stroke-linecap="round"/><path d="M12 20v-8m0 0-3 3m3-3 3 3" fill="none" stroke="#0F5E66" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <b>Tarik file ke sini, atau klik untuk memilih</b>
-          <small>Bisa beberapa file sekaligus, misalnya satu laporan per perusahaan. Tangkapan layar juga bisa ditempel dengan Ctrl+V saat tab ini terbuka.</small>
-          <span class="fmt-row"><span>EXCEL</span><span>CSV</span><span>PDF</span><span>WORD</span><span>POWERPOINT</span><span>PNG / JPG</span></span>
+          <small>Bisa beberapa file sekaligus, misalnya satu file per perusahaan.</small>
+          <span class="fmt-row"><span>EXCEL</span><span>CSV</span></span>
         </label>
-      </div>
-      <div class="tabpanel" data-panel="link" hidden>
-        <div class="link-row"><label for="linkIn" class="hidden">Tautan web</label><input type="url" id="linkIn" placeholder="https://… Google Sheet, file PDF/Excel/Word/PowerPoint, atau halaman berisi tabel"><button type="button" class="btn" id="btnLink">Ambil</button></div>
-        <p class="link-note">Google Sheet, Docs, dan Slides dibaca bila aksesnya "Siapa saja yang memiliki link". Tautan lain dibaca lewat server aplikasi versi web (Vercel). Bila situs menolak, unduh filenya lalu unggah.</p>
       </div>
       <div id="srcList" class="src-list" aria-live="polite"></div>
       <div class="src-acts" id="srcActs" hidden>
@@ -711,7 +706,7 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color
         <li>Judul kolom angka: nama perusahaan lalu periode, misalnya GPSC 6M/26.</li>
         <li>Format angka Indonesia (1.234,56) dan internasional (1,234.56) dikenali otomatis.</li>
         <li>Isi kolom Sumber agar setiap angka bisa ditelusuri.</li>
-        <li>Dari file atau tautan, tabel berformat sama langsung dipakai. Laporan biasa (MD&amp;A, laporan keuangan, slide) dibaca barisnya: pilih nama perusahaan dan dua periode, lalu angka disusun otomatis.</li>
+        <li>Dari file Excel atau CSV, tabel berformat sama langsung dipakai. Tabel berbentuk lain (misalnya ikhtisar keuangan) dibaca barisnya: pilih nama perusahaan dan dua periode, lalu angka disusun otomatis.</li>
       </ul>
     </aside>
   </section>
@@ -789,7 +784,7 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color
     </div>
   </dialog>
 </main>
-<footer>Prototipe v12. Semua angka dihitung di halaman ini dengan rumus tetap. Claude hanya dipakai untuk menulis naskah narasi video; angka di grafik video tetap dari hasil hitung halaman ini. Suara: model Piper id_ID news_tts. Sumber data contoh: SET Listed Company Snapshot 6M2026; GPSC MD&amp;A 2Q2026; B.Grimm MD&amp;A 1Q2026 serta rilis Q2 2025 dan Q2 2026.</footer>
+<footer>Prototipe v13. Semua angka dihitung di halaman ini dengan rumus tetap. Claude hanya dipakai untuk menulis naskah narasi video; angka di grafik video tetap dari hasil hitung halaman ini. Suara: model Piper id_ID news_tts. Sumber data contoh: SET Listed Company Snapshot 6M2026; GPSC MD&amp;A 2Q2026; B.Grimm MD&amp;A 1Q2026 serta rilis Q2 2025 dan Q2 2026.</footer>
 <script>
 const SAMPLE = [
 "Indikator\tGPSC 6M/25\tGPSC 6M/26\tBGRIM 6M/25\tBGRIM 6M/26\tSatuan\tSumber",
@@ -2263,13 +2258,10 @@ async function downloadReportPdf() {
 }
 $("#btnPdf").addEventListener("click", downloadReportPdf);
 
-/* ---------- import: Excel, CSV, PDF, Word, PowerPoint, images, and web links -> data pack ---------- */
+/* ---------- import: Excel and CSV files -> data pack ---------- */
 (function () {
   const CDN = {
     xlsx: ["https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"],
-    zip: ["https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"],
-    pdf: ["https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js", "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"],
-    ocr: ["https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"],
   };
   const loaded = {};
   const loadScript = (src) => loaded[src] || (loaded[src] = new Promise((ok, no) => {
@@ -2333,123 +2325,23 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
     return rows.filter((r) => r.some((c) => String(c).trim()));
   }
   const gridToTable = (title, grid) => ({ title, pos: false, rows: grid.map((r, ri) => ({ page: null, cells: r.map((t, x) => ({ t: String(t == null ? "" : t).trim(), x })).filter((c) => c.t !== "") })).filter((r) => r.cells.length) });
-  const xmlDoc = (s) => new DOMParser().parseFromString(s, "application/xml");
-  const tagText = (el, tag) => [...el.getElementsByTagName(tag)].map((n) => n.textContent).join("");
 
   async function readXlsx(buf, name) {
     await loadLib("xlsx");
     const wb = XLSX.read(buf, { type: "array" });
     return { kind: "Excel", tables: wb.SheetNames.map((sn) => gridToTable(`sheet ${sn}`, XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, raw: true, defval: "" }).map((r) => r.map((v) => (typeof v === "number" ? String(v) : v))))), info: `${wb.SheetNames.length} sheet` };
   }
-  async function readDocx(buf) {
-    await loadLib("zip");
-    const zip = await JSZip.loadAsync(buf), f = zip.file("word/document.xml");
-    if (!f) throw new Error("Isi dokumen Word tidak ditemukan.");
-    const doc = xmlDoc(await f.async("string")), tables = [];
-    [...doc.getElementsByTagName("w:tbl")].forEach((tbl, i) => tables.push(gridToTable(`tabel ${i + 1}`, [...tbl.getElementsByTagName("w:tr")].map((tr) => [...tr.getElementsByTagName("w:tc")].map((tc) => tagText(tc, "w:t"))))));
-    const paras = [...doc.getElementsByTagName("w:p")].filter((p) => !p.closest || !p.closest("tbl")).map((p) => [...p.childNodes].map((r) => [...r.getElementsByTagName ? r.getElementsByTagName("*") : []].map((n) => (n.nodeName === "w:tab" ? "\t" : n.nodeName === "w:t" ? n.textContent : "")).join("")).join(""));
-    const tabbed = paras.filter((p) => p.includes("\t")).map((p) => p.split("\t"));
-    if (tabbed.length) tables.push(gridToTable("teks bertab", tabbed));
-    return { kind: "Word", tables, info: `${tables.length} tabel`, text: paras.join("\n") };
-  }
-  async function readPptx(buf) {
-    await loadLib("zip");
-    const zip = await JSZip.loadAsync(buf), tables = [], texts = [];
-    const slides = Object.keys(zip.files).filter((k) => /^ppt\/slides\/slide\d+\.xml$/.test(k)).sort((a, b) => +a.match(/\d+/)[0] - +b.match(/\d+/)[0]);
-    for (const k of slides) {
-      const n = +k.match(/slide(\d+)/)[1], doc = xmlDoc(await zip.file(k).async("string"));
-      [...doc.getElementsByTagName("a:tbl")].forEach((tbl, i) => {
-        const t = gridToTable(`slide ${n} tabel ${i + 1}`, [...tbl.getElementsByTagName("a:tr")].map((tr) => [...tr.getElementsByTagName("a:tc")].map((tc) => tagText(tc, "a:t"))));
-        t.rows.forEach((r) => (r.page = n)); tables.push(t);
-      });
-      [...doc.getElementsByTagName("a:p")].forEach((p) => { const s = tagText(p, "a:t"); if (s.trim()) texts.push(s); });
-    }
-    const charts = Object.keys(zip.files).filter((k) => /^ppt\/charts\/chart\d+\.xml$/.test(k));
-    for (const k of charts) { // chart data caches: categories as header, one row per series
-      const doc = xmlDoc(await zip.file(k).async("string")), ser = [...doc.getElementsByTagName("c:ser")];
-      if (!ser.length) continue;
-      const cats = [...(ser[0].getElementsByTagName("c:cat")[0] || { getElementsByTagName: () => [] }).getElementsByTagName("c:v")].map((v) => v.textContent);
-      const grid = [["Seri"].concat(cats)].concat(ser.map((s) => [tagText(s.getElementsByTagName("c:tx")[0] || s, "c:v") || "Seri"].concat([...(s.getElementsByTagName("c:val")[0] || { getElementsByTagName: () => [] }).getElementsByTagName("c:v")].map((v) => v.textContent))));
-      tables.push(gridToTable(`grafik ${k.match(/\d+/)[0]}`, grid));
-    }
-    return { kind: "PowerPoint", tables, info: `${slides.length} slide, ${tables.length} tabel/grafik`, text: texts.join("\n") };
-  }
-  async function readPdf(buf) {
-    await loadLib("pdf");
-    if (window.pdfjsLib && pdfjsLib.GlobalWorkerOptions) pdfjsLib.GlobalWorkerOptions.workerSrc = CDN.pdf[1];
-    const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(buf), isEvalSupported: false }).promise;
-    const n = Math.min(pdf.numPages, 60), rows = [];
-    for (let p = 1; p <= n; p++) {
-      const page = await pdf.getPage(p), tc = await page.getTextContent();
-      const items = tc.items.filter((it) => it.str && it.str.trim()).map((it) => ({ t: it.str.trim(), x: it.transform[4] + (it.width || 0) / 2, x0: it.transform[4], x1: it.transform[4] + (it.width || 0), y: it.transform[5], h: Math.abs(it.transform[3]) || 8 }));
-      items.sort((a, b) => b.y - a.y || a.x0 - b.x0);
-      const lines = [];
-      items.forEach((it) => { const L = lines.find((l) => Math.abs(l.y - it.y) <= Math.max(2, it.h * 0.45)); if (L) L.items.push(it); else lines.push({ y: it.y, items: [it] }); });
-      lines.sort((a, b) => b.y - a.y).forEach((L) => {
-        L.items.sort((a, b) => a.x0 - b.x0);
-        const cells = [];
-        L.items.forEach((it) => { // split items that pack a label and numbers together
-          const toks = it.t.split(/\s{2,}/);
-          if (toks.length > 1) { const w = (it.x1 - it.x0) / it.t.length; let off = 0; toks.forEach((tk) => { const i0 = it.t.indexOf(tk, off); off = i0 + tk.length; cells.push({ t: tk, x: it.x0 + w * (i0 + tk.length / 2), x0: it.x0 + w * i0, x1: it.x0 + w * (i0 + tk.length) }); }); }
-          else cells.push({ t: it.t, x: it.x, x0: it.x0, x1: it.x1 });
-        });
-        rows.push({ page: p, cells });
-      });
-    }
-    return { kind: "PDF", tables: [{ title: "teks halaman", pos: true, rows }], info: `${pdf.numPages} halaman${pdf.numPages > n ? ` (dibaca ${n})` : ""}`, text: rows.map((r) => r.cells.map((c) => c.t).join(" ")).join("\n") };
-  }
-  async function readImage(blob, onStatus) {
-    await loadLib("ocr");
-    onStatus && onStatus("Membaca teks pada gambar (OCR)… bisa 10–40 detik.");
-    const ocrFail = () => new Error("Gambar tidak bisa dibaca: OCR perlu mengunduh model bahasa dari internet dan langkah itu diblokir di halaman ini. Gunakan versi web aplikasi, atau ketik angkanya di tab Tempel tabel.");
-    const timeout = (ms) => new Promise((_, no) => setTimeout(() => no(ocrFail()), ms));
-    let worker;
-    try { worker = await Promise.race([Tesseract.createWorker("eng"), timeout(45000)]); } catch (e) { throw ocrFail(); }
-    try {
-      const { data } = await Promise.race([worker.recognize(blob, {}, { blocks: true, text: true }), timeout(90000)]);
-      const rows = [];
-      (data.blocks || []).forEach((b) => (b.paragraphs || []).forEach((pg) => (pg.lines || []).forEach((ln) => {
-        const words = (ln.words || []).map((w) => ({ t: w.text, x0: w.bbox.x0, x1: w.bbox.x1 }));
-        const cells = []; // merge adjacent non-numeric words into one label cell; numbers stay separate
-        words.forEach((w) => {
-          const last = cells[cells.length - 1];
-          if (last && !isNum(w.t) && !isNum(last.t) && w.x0 - last.x1 < 18) { last.t += " " + w.t; last.x1 = w.x1; }
-          else cells.push({ t: w.t, x0: w.x0, x1: w.x1 });
-        });
-        rows.push({ page: 1, cells: cells.map((c) => ({ t: c.t, x: (c.x0 + c.x1) / 2, x0: c.x0, x1: c.x1 })) });
-      })));
-      if (!rows.length && data.text) data.text.split("\n").forEach((l) => l.trim() && rows.push({ page: 1, cells: l.trim().split(/\s+/).map((t, i) => ({ t, x: i * 50 })) }));
-      return { kind: "Gambar", tables: [{ title: "teks gambar", pos: true, rows }], info: `OCR ${Math.round(data.confidence || 0)}% yakin`, text: data.text || "" };
-    } finally { await worker.terminate(); }
-  }
-  function readHtml(text, base) {
-    const doc = new DOMParser().parseFromString(text, "text/html"), tables = [];
-    [...doc.querySelectorAll("table")].forEach((tbl, i) => tables.push(gridToTable(`tabel ${i + 1}`, [...tbl.querySelectorAll("tr")].map((tr) => [...tr.querySelectorAll("th,td")].map((c) => c.textContent.replace(/\s+/g, " ").trim())))));
-    return { kind: "Halaman web", tables, info: `${tables.length} tabel${doc.title ? " · " + doc.title.trim().slice(0, 60) : ""}`, text: doc.body ? doc.body.textContent : "" };
-  }
-
   /* ---------- sniff and dispatch ---------- */
-  async function readAny(blob, name, onStatus) {
+  async function readAny(blob, name) {
     const buf = await blob.arrayBuffer(), head = new Uint8Array(buf.slice(0, 8)), ext = (name.split(".").pop() || "").toLowerCase();
-    const isZip = head[0] === 0x50 && head[1] === 0x4b, isPdf = head[0] === 0x25 && head[1] === 0x50 && head[2] === 0x44 && head[3] === 0x46;
-    const isImg = /^image\//.test(blob.type) || ["png", "jpg", "jpeg", "webp", "bmp", "gif"].includes(ext) || (head[0] === 0x89 && head[1] === 0x50) || (head[0] === 0xff && head[1] === 0xd8);
-    if (isPdf) return readPdf(buf);
-    if (isImg) return readImage(blob, onStatus);
-    if (isZip) {
-      await loadLib("zip");
-      const zip = await JSZip.loadAsync(buf);
-      if (zip.file("word/document.xml")) return readDocx(buf);
-      if (zip.file("ppt/presentation.xml")) return readPptx(buf);
-      if (zip.file("xl/workbook.xml")) return readXlsx(buf, name);
-      throw new Error("File ZIP ini bukan Excel, Word, atau PowerPoint.");
+    const isZip = head[0] === 0x50 && head[1] === 0x4b, isOle = head[0] === 0xd0 && head[1] === 0xcf;
+    const other = ["pdf", "doc", "docx", "ppt", "pptx", "png", "jpg", "jpeg", "gif", "webp", "bmp", "html", "htm"];
+    if (!other.includes(ext) && (["xlsx", "xlsm", "xls"].includes(ext) || isZip || isOle)) return readXlsx(buf, name);
+    if (["csv", "tsv"].includes(ext)) {
+      const text = new TextDecoder("utf-8").decode(buf);
+      return { kind: "CSV", tables: [gridToTable("tabel", parseCsv(text))], info: "teks tabel", text };
     }
-    if (["xls", "ods"].includes(ext) || (head[0] === 0xd0 && head[1] === 0xcf)) {
-      if (ext === "doc" || ext === "ppt") throw new Error(`Format .${ext} lama belum didukung. Simpan ulang sebagai .${ext}x lalu unggah lagi.`);
-      return readXlsx(buf, name);
-    }
-    const text = new TextDecoder("utf-8").decode(buf);
-    if (/<html|<table|<!doctype html/i.test(text.slice(0, 5000))) return readHtml(text);
-    return { kind: ext === "csv" ? "CSV" : "Teks", tables: [gridToTable("tabel", parseCsv(text))], info: "teks tabel", text };
+    throw new Error("Format file ini tidak didukung. Unggah file Excel (.xlsx/.xls) atau CSV, atau tempel tabelnya di tab Tempel tabel.");
   }
 
   /* ---------- analysis: ready-made data pack, or assemble from a report ---------- */
@@ -2459,22 +2351,6 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
       const hits = r.cells.filter((c) => { const m = c.t.match(/^(.*\S)\s+(\S+)$/); return m && normPeriod(m[2]); });
       if (hits.length >= 4 && new Set(hits.map((c) => c.t.replace(/\s+\S+$/, ""))).size >= 2) {
         const start = tbl.rows.indexOf(r);
-        if (tbl.pos) { // PDF/OCR text: x is a position on the page, so map each cell to the nearest header column
-          const hdr = r.cells.slice().sort((a, b) => a.x - b.x), xs = hdr.map((c) => c.x), n = hdr.length;
-          const edge = hdr[1].x0 != null ? hdr[1].x0 : (xs[0] + xs[1]) / 2;
-          const colOf = (c) => { if (c.x < edge) return 0; let k = 1, d = Infinity; for (let j = 1; j < n; j++) { const dd = Math.abs(c.x - xs[j]); if (dd < d) { d = dd; k = j; } } return k; };
-          const lines = [];
-          tbl.rows.slice(start).forEach((q) => {
-            if (!q.cells.length) return;
-            const a = new Array(n).fill("");
-            q.cells.slice().sort((x, y) => x.x - y.x).forEach((c) => { const k = colOf(c); a[k] = a[k] ? a[k] + " " + c.t : c.t; });
-            if (!a[0] && lines.length && a.slice(1, n).every((v, j) => !v || j >= n - 3)) { // wrapped unit/source text: append to the row above
-              const prev = lines[lines.length - 1]; a.forEach((v, j) => { if (v) prev[j] = prev[j] ? prev[j] + " " + v : v; }); return;
-            }
-            lines.push(a);
-          });
-          return lines.map((a) => a.join("\t")).join("\n");
-        }
         const width = Math.max(...tbl.rows.slice(start).map((q) => q.cells.length ? Math.max(...q.cells.map((c) => c.x)) + 1 : 0));
         const lines = tbl.rows.slice(start).map((q) => { const a = new Array(width).fill(""); q.cells.forEach((c) => (a[c.x] = c.t)); return a.join("\t"); });
         return lines.join("\n");
@@ -2575,7 +2451,7 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
       addCo(co);
       Object.entries(picked(s)).forEach(([k, p]) => {
         const unit = ["EBITDA_M", "NPM", "ROE"].includes(k) ? "%" : ["DE", "NDE"].includes(k) ? "x" : s.unit;
-        const at = `${s.name}${!p.cand.page || s.kind === "Gambar" ? "" : s.kind === "PowerPoint" ? " slide " + p.cand.page : " hal. " + p.cand.page}`;
+        const at = s.name;
         put(k, co, pers[0], p.v0, unit, at); put(k, co, pers[1], p.v1, unit, at);
       });
     });
@@ -2590,7 +2466,7 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
   const $id = (s) => document.getElementById(s);
   const list = $id("srcList"), acts = $id("srcActs"), smsg = $id("srcMsg");
   if (!list) return;
-  const ICON = { Excel: "XLS", CSV: "CSV", Teks: "TXT", PDF: "PDF", Word: "DOC", PowerPoint: "PPT", Gambar: "IMG", "Halaman web": "WEB", "Google Sheet": "GS" };
+  const ICON = { Excel: "XLS", CSV: "CSV" };
   function render() {
     list.innerHTML = SOURCES.map((s) => {
       let body = "";
@@ -2616,7 +2492,7 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
     $id("btnBuild").disabled = !okN;
     $id("btnBuild").textContent = okN ? `Susun data pack dari ${okN} sumber dan hitung` : "Susun data pack dan hitung";
   }
-  const where = (s, page) => (!page || s.kind === "Gambar" ? "" : s.kind === "PowerPoint" ? ` · slide ${page}` : ` · hal. ${page}`);
+  const where = () => "";
   const fmtCell = (v) => (v == null ? "—" : v.toLocaleString("id-ID", { maximumFractionDigits: 2 }));
   list.addEventListener("click", (e) => { const b = e.target.closest(".src-del"); if (!b) return; const id = +b.closest(".src-card").dataset.id; const i = SOURCES.findIndex((s) => s.id === id); if (i >= 0) SOURCES.splice(i, 1); render(); });
   list.addEventListener("change", (e) => {
@@ -2643,54 +2519,14 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
     } catch (e) { s.status = ""; s.err = e && e.message ? e.message : "File tidak dapat dibaca."; s.ok = false; }
     render();
   }
-  const addFiles = (files) => [...files].forEach((f) => addSource(f.name || "gambar-tempel.png", async () => f));
+  const addFiles = (files) => [...files].forEach((f) => addSource(f.name || "file", async () => f));
 
-  // file picker, drag and drop, and pasted screenshots
+  // file picker and drag and drop
   const fileIn = $id("fileIn"), drop = $id("drop");
   fileIn.addEventListener("change", () => { addFiles(fileIn.files); fileIn.value = ""; });
   ["dragenter", "dragover"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add("over"); }));
   ["dragleave", "drop"].forEach((ev) => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove("over"); }));
   drop.addEventListener("drop", (e) => { if (e.dataTransfer && e.dataTransfer.files.length) addFiles(e.dataTransfer.files); });
-  document.addEventListener("paste", (e) => {
-    if (document.querySelector('[data-panel="file"]').hidden) return;
-    const imgs = [...(e.clipboardData ? e.clipboardData.files : [])].filter((f) => /^image\//.test(f.type));
-    if (imgs.length) { e.preventDefault(); imgs.forEach((f, i) => addSource(`tangkapan-layar-${seq + 1}.png`, async () => f)); }
-  });
-
-  // web links: Google Sheets/Docs/Slides export, direct fetch, then the app's own server proxy
-  async function getLink(url, onStatus) {
-    const tries = [];
-    const gs = url.match(/docs\.google\.com\/spreadsheets\/d\/([\w-]+)/), gd = url.match(/docs\.google\.com\/document\/d\/([\w-]+)/), gp = url.match(/docs\.google\.com\/presentation\/d\/([\w-]+)/);
-    if (gs) { const gid = (url.match(/[#&?]gid=(\d+)/) || [])[1]; tries.push(`https://docs.google.com/spreadsheets/d/${gs[1]}/gviz/tq?tqx=out:csv${gid ? "&gid=" + gid : ""}`); }
-    else if (gd) tries.push(`https://docs.google.com/document/d/${gd[1]}/export?format=docx`);
-    else if (gp) tries.push(`https://docs.google.com/presentation/d/${gp[1]}/export/pptx`);
-    else tries.push(url);
-    let lastErr = null;
-    for (const u of tries) {
-      try { const r = await fetch(u, { mode: "cors" }); if (r.ok) return await r.blob(); lastErr = new Error(`Server menjawab ${r.status}.`); } catch (e) { lastErr = e; }
-      if (/^https?:$/.test(location.protocol)) {
-        try {
-          onStatus && onStatus("Membaca lewat server aplikasi…");
-          const r = await fetch(`/api/fetch?url=${encodeURIComponent(u)}`);
-          if (r.ok && r.headers.get("x-proxy") === "benchmark-cepat") return await r.blob();
-          if (r.status === 404) lastErr = new Error("PROXY_MISSING"); else { lastErr = new Error((await r.text()).slice(0, 200) || `Server menjawab ${r.status}.`); lastErr.fromProxy = true; }
-        } catch (e) { lastErr = e; }
-      }
-    }
-    if (gs) throw new Error("Google Sheet tidak bisa dibaca. Pastikan aksesnya \"Siapa saja yang memiliki link\", atau salin tabelnya lalu tempel di tab Tempel tabel.");
-    if (lastErr && lastErr.message === "PROXY_MISSING") throw new Error("Situs ini tidak mengizinkan dibaca langsung dari browser, dan server pembaca tautan (api/fetch.js) belum dipasang. Unduh filenya, lalu unggah di tab Unggah file.");
-    if (lastErr && lastErr.fromProxy) throw new Error(`${lastErr.message} Unduh filenya, lalu unggah di tab Unggah file.`);
-    throw new Error("Tautan tidak bisa dibaca dari halaman ini" + (/^https?:$/.test(location.protocol) ? "" : " (perlu versi web aplikasi)") + ". Unduh filenya, lalu unggah di tab Unggah file.");
-  }
-  $id("btnLink").addEventListener("click", () => {
-    const inp = $id("linkIn"), url = inp.value.trim();
-    if (!/^https?:\/\/\S+$/i.test(url)) { smsg.className = "src-msg err"; smsg.textContent = "Masukkan tautan lengkap yang diawali https://"; acts.hidden = false; return; }
-    const name = /docs\.google\.com\/spreadsheets/.test(url) ? "Google Sheet" : decodeURIComponent(url.split("?")[0].split("/").filter(Boolean).pop() || url).slice(0, 80);
-    addSource(name, (st) => getLink(url, st), /docs\.google\.com\/spreadsheets/.test(url) ? "Google Sheet" : "");
-    inp.value = "";
-  });
-  $id("linkIn").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); $id("btnLink").click(); } });
-
   // tabs
   const tabs = [...document.querySelectorAll(".src-tabs [role=tab]")];
   const showTab = (name) => { tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.tab === name))); document.querySelectorAll(".tabpanel").forEach((p) => (p.hidden = p.dataset.panel !== name)); };
