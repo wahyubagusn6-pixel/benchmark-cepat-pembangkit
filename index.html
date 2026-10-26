@@ -2390,8 +2390,8 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
         const cells = [];
         L.items.forEach((it) => { // split items that pack a label and numbers together
           const toks = it.t.split(/\s{2,}/);
-          if (toks.length > 1) { const w = (it.x1 - it.x0) / it.t.length; let off = 0; toks.forEach((tk) => { const i0 = it.t.indexOf(tk, off); off = i0 + tk.length; cells.push({ t: tk, x: it.x0 + w * (i0 + tk.length / 2) }); }); }
-          else cells.push({ t: it.t, x: it.x });
+          if (toks.length > 1) { const w = (it.x1 - it.x0) / it.t.length; let off = 0; toks.forEach((tk) => { const i0 = it.t.indexOf(tk, off); off = i0 + tk.length; cells.push({ t: tk, x: it.x0 + w * (i0 + tk.length / 2), x0: it.x0 + w * i0, x1: it.x0 + w * (i0 + tk.length) }); }); }
+          else cells.push({ t: it.t, x: it.x, x0: it.x0, x1: it.x1 });
         });
         rows.push({ page: p, cells });
       });
@@ -2416,7 +2416,7 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
           if (last && !isNum(w.t) && !isNum(last.t) && w.x0 - last.x1 < 18) { last.t += " " + w.t; last.x1 = w.x1; }
           else cells.push({ t: w.t, x0: w.x0, x1: w.x1 });
         });
-        rows.push({ page: 1, cells: cells.map((c) => ({ t: c.t, x: (c.x0 + c.x1) / 2 })) });
+        rows.push({ page: 1, cells: cells.map((c) => ({ t: c.t, x: (c.x0 + c.x1) / 2, x0: c.x0, x1: c.x1 })) });
       })));
       if (!rows.length && data.text) data.text.split("\n").forEach((l) => l.trim() && rows.push({ page: 1, cells: l.trim().split(/\s+/).map((t, i) => ({ t, x: i * 50 })) }));
       return { kind: "Gambar", tables: [{ title: "teks gambar", pos: true, rows }], info: `OCR ${Math.round(data.confidence || 0)}% yakin`, text: data.text || "" };
@@ -2459,6 +2459,22 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
       const hits = r.cells.filter((c) => { const m = c.t.match(/^(.*\S)\s+(\S+)$/); return m && normPeriod(m[2]); });
       if (hits.length >= 4 && new Set(hits.map((c) => c.t.replace(/\s+\S+$/, ""))).size >= 2) {
         const start = tbl.rows.indexOf(r);
+        if (tbl.pos) { // PDF/OCR text: x is a position on the page, so map each cell to the nearest header column
+          const hdr = r.cells.slice().sort((a, b) => a.x - b.x), xs = hdr.map((c) => c.x), n = hdr.length;
+          const edge = hdr[1].x0 != null ? hdr[1].x0 : (xs[0] + xs[1]) / 2;
+          const colOf = (c) => { if (c.x < edge) return 0; let k = 1, d = Infinity; for (let j = 1; j < n; j++) { const dd = Math.abs(c.x - xs[j]); if (dd < d) { d = dd; k = j; } } return k; };
+          const lines = [];
+          tbl.rows.slice(start).forEach((q) => {
+            if (!q.cells.length) return;
+            const a = new Array(n).fill("");
+            q.cells.slice().sort((x, y) => x.x - y.x).forEach((c) => { const k = colOf(c); a[k] = a[k] ? a[k] + " " + c.t : c.t; });
+            if (!a[0] && lines.length && a.slice(1, n).every((v, j) => !v || j >= n - 3)) { // wrapped unit/source text: append to the row above
+              const prev = lines[lines.length - 1]; a.forEach((v, j) => { if (v) prev[j] = prev[j] ? prev[j] + " " + v : v; }); return;
+            }
+            lines.push(a);
+          });
+          return lines.map((a) => a.join("\t")).join("\n");
+        }
         const width = Math.max(...tbl.rows.slice(start).map((q) => q.cells.length ? Math.max(...q.cells.map((c) => c.x)) + 1 : 0));
         const lines = tbl.rows.slice(start).map((q) => { const a = new Array(width).fill(""); q.cells.forEach((c) => (a[c.x] = c.t)); return a.join("\t"); });
         return lines.join("\n");
@@ -2484,7 +2500,7 @@ $("#btnPdf").addEventListener("click", downloadReportPdf);
   }
   function analyze(src) {
     src.ready = null;
-    for (const t of src.tables) { const r = readyPack(t); if (r) { src.ready = r; break; } }
+    for (const t of src.tables) { let r = null; try { r = readyPack(t); } catch (e) { r = null; } if (r) { src.ready = r; break; } }
     if (src.ready) { try { const dp = parseDataPack(src.ready); src.readyDp = dp; } catch (e) { src.ready = null; } }
     if (src.ready) return;
     const allNums = [];
@@ -2703,7 +2719,7 @@ const BenchVideo = (function () {
   const PINK = "#F998F7", PINK_D = "#E27BDD", PINK_SOFT = "#FDE8FB", PINK_BAR0 = "#FBCFF9", INK = "#1C1C1E", GRID = "#E8E8EE", BG = "#FAFAFA", YEL = "#FFE45C", BLUE = "#8FC8EF", MUTED = "#5E6670";
   const FONT = '"Barlow", "Segoe UI", Roboto, Arial, sans-serif', FONT_C = '"Barlow Condensed", "Arial Narrow", Arial, sans-serif';
   /* the page first looks for its own copies in vlib/ (artifact files or the Vercel folder), then public CDNs */
-  const LOCAL = "vlib/";
+  let LOCAL = "vlib/"; /* or "" when the files sit next to index.html */
   const CDN = {
     ort: "https://cdnjs.cloudflare.com/ajax/libs/onnxruntime-web/1.18.0/ort.min.js",
     ortBase: "https://cdnjs.cloudflare.com/ajax/libs/onnxruntime-web/1.18.0/",
@@ -2712,15 +2728,15 @@ const BenchVideo = (function () {
     mp4: "https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.js",
     webm: "https://cdn.jsdelivr.net/npm/webm-muxer@5.1.4/build/webm-muxer.js",
   };
-  const VOICE_URLS = [
-    LOCAL + "id_ID-news_tts-medium.int8.onnx",
+  const VOICE_REMOTE = [
     "https://huggingface.co/rhasspy/piper-voices/resolve/main/id/id_ID/news_tts/medium/id_ID-news_tts-medium.onnx",
     "https://huggingface.co/csukuangfj/vits-piper-id_ID-news_tts-medium/resolve/main/id_ID-news_tts-medium.onnx",
   ];
-  const VOICE_CFG = [LOCAL + "id_ID-news_tts-medium.onnx.json", VOICE_URLS[1] + ".json", VOICE_URLS[2] + ".json"];
+  const voiceUrls = (local) => (local ? [LOCAL + "id_ID-news_tts-medium.int8.onnx"] : []).concat(VOICE_REMOTE);
+  const voiceCfg = (local) => (local ? [LOCAL + "id_ID-news_tts-medium.onnx.json"] : []).concat(VOICE_REMOTE.map((u) => u + ".json"));
   const abs = (u) => new URL(u, document.baseURI).href;
-  const hasLocal = (() => { let p = null; return () => p || (p = (async () => { if (!/^https?:$/.test(location.protocol)) return false; try { const r = await fetch(LOCAL + "piper.js", { method: "HEAD", cache: "no-store" }); return r.ok; } catch (e) { return false; } })()); })();
-  const voiceProbe = (() => { let p = null; return () => p || (p = (async () => { if (await hasLocal()) return true; try { const r = await fetch(VOICE_CFG[1], { cache: "force-cache" }); return r.ok; } catch (e) { return false; } })()); })();
+  const hasLocal = (() => { let p = null; return () => p || (p = (async () => { if (!/^https?:$/.test(location.protocol)) return false; try { const need = ["piper.js", "ort.min.js", "ort-wasm-simd.wasm", "piper_phonemize.wasm", "piper_phonemize.data"]; for (const base of ["vlib/", ""]) { const rs = await Promise.all(need.map((f) => fetch(base + f, { method: "HEAD", cache: "no-store" }).then((r) => r.ok, () => false))); if (rs.every(Boolean)) { LOCAL = base; return true; } } return false; } catch (e) { return false; } })()); })();
+  const voiceProbe = (() => { let p = null; return () => p || (p = (async () => { if (await hasLocal()) return true; try { const r = await fetch(VOICE_REMOTE[0] + ".json", { cache: "force-cache" }); return r.ok; } catch (e) { return false; } })()); })();
   async function lib(name) {
     const local = await hasLocal();
     const map = { ort: [LOCAL + "ort.min.js", CDN.ort], mp4: [LOCAL + "mp4-muxer.js", CDN.mp4], webm: [LOCAL + "webm-muxer.js", CDN.webm] }[name];
@@ -3304,10 +3320,10 @@ Urutan: title, hook, agenda, lalu bab dan isinya, terakhir closing. ${minutes <=
     onStatus("Memuat mesin suara…");
     const local = await hasLocal();
     await lib("ort");
-    ort.env.wasm.wasmPaths = local ? abs(LOCAL) : CDN.ortBase; ort.env.wasm.numThreads = 1;
-    const cfgBuf = await fetchCached(local ? VOICE_CFG : VOICE_CFG.slice(1));
+    ort.env.wasm.wasmPaths = local ? abs(LOCAL || "./") : CDN.ortBase; ort.env.wasm.numThreads = 1;
+    const cfgBuf = await fetchCached(voiceCfg(local));
     const cfg = JSON.parse(new TextDecoder().decode(cfgBuf));
-    const model = await fetchCached(local ? VOICE_URLS : VOICE_URLS.slice(1), (g, t) => onStatus(`Mengunduh suara Indonesia (sekali saja)… ${(g / 1048576).toFixed(0)}${t ? " / " + (t / 1048576).toFixed(0) : ""} MB`));
+    const model = await fetchCached(voiceUrls(local), (g, t) => onStatus(`Mengunduh suara Indonesia (sekali saja)… ${(g / 1048576).toFixed(0)}${t ? " / " + (t / 1048576).toFixed(0) : ""} MB`));
     onStatus("Menyiapkan suara…");
     const session = await ort.InferenceSession.create(new Uint8Array(model), { executionProviders: ["wasm"] });
     const phon = await import(local ? abs(LOCAL + "piper.js") : CDN.phon);
