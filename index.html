@@ -740,12 +740,11 @@ footer{max-width:1240px;margin:0 auto;padding:0 20px 36px;font-size:.82rem;color
 
   <section id="salin" class="panel out hidden">
     <h2>Salin dan cetak hasil</h2>
-    <p class="help">Unduh laporan PDF A4 10 halaman berformat laporan evaluasi kinerja: ringkasan eksekutif, summary, tabel realisasi, uraian per rasio dengan grafik, serta tanda keputusan Anda. Buat juga video penjelasan bernarasi bahasa Indonesia (naskah ditulis Claude, maks. 5 menit), atau salin tabel untuk Sheet/Excel dan ringkasan Markdown untuk catatan paparan.</p>
+    <p class="help">Unduh laporan PDF A4 10 halaman berformat laporan evaluasi kinerja: ringkasan eksekutif, summary, tabel realisasi, uraian per rasio dengan grafik, serta tanda keputusan Anda. Buat juga video penjelasan bernarasi bahasa Indonesia (naskah ditulis Claude, maks. 5 menit), atau salin tabel untuk Sheet/Excel.</p>
     <div class="btns" style="margin-top:0">
       <button class="btn primary" id="btnPdf"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h8l5 5v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14 2v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 11v6m0 0l-2.6-2.6M12 17l2.6-2.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Unduh laporan PDF (10 halaman)</button>
       <button class="btn" id="btnCopyTsv">Salin tabel untuk Sheet/Excel</button>
       <button class="btn primary" id="btnVideo"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="14" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16.5 10l5-3v10l-5-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8 9.5v5l4-2.5z" fill="currentColor"/></svg>Buat video penjelasan (maks. 5 menit)</button>
-      <button class="btn" id="btnCopyMd">Salin ringkasan Markdown</button>
       <span class="copy-msg" id="copyMsg" role="status" aria-live="polite"></span>
     </div>
     <textarea id="outBox" readonly class="hidden" aria-label="Teks hasil untuk disalin"></textarea>
@@ -1153,17 +1152,6 @@ function buildTsv() {
   S.flags.forEach((f) => lines.push([f.title, f.detail, S.notes[f.id] || ""].join("\t")));
   return lines.join("\n");
 }
-function buildMd() {
-  const S = STATE, { A, B, p0, p1 } = S;
-  let m = `## Benchmark ${A} vs ${B} · ${p0} → ${p1}\n\n**Draf kesimpulan:** ${plainTake()}\n\n| Rasio | ${A} ${p0} | ${A} ${p1} | ${B} ${p0} | ${B} ${p1} | Lebih baik |\n|---|---:|---:|---:|---:|---|\n`;
-  S.rows.forEach((r) => {
-    m += `| ${r.label} | ` + [A, B].flatMap((co) => [p0, p1].map((p) => { const c = S.cells[r.id + "|" + co + "|" + p]; return c ? fmt(c.val, r.unit, r.signed) + (c.flags.length ? " ⚑" : "") : "—"; })).join(" | ") + ` | ${r.better || "—"} |\n`;
-  });
-  m += `\n**Perlu keputusan analis**\n` + S.flags.map((f) => `- ${f.title}: ${f.detail}${S.notes[f.id] ? `\n  - Keputusan: ${S.notes[f.id]}` : ""}`).join("\n");
-  m += `\n\n**Rumus**\n` + S.rows.map((r) => `- ${r.label}: ${r.formula}`).join("\n");
-  m += `\n\n**Sumber data pack**\n` + [...new Set(Object.values(S.dp.items).map((x) => x.src).filter(Boolean))].map((x) => `- ${x}`).join("\n");
-  return m;
-}
 async function copyOut(text, label) {
   const box = $("#outBox");
   box.value = text;
@@ -1213,7 +1201,6 @@ document.querySelectorAll(".stepper a.step").forEach((a) => a.addEventListener("
   $("#input").scrollIntoView({ behavior: smooth(), block: "start" });
 }));
 $("#btnCopyTsv").addEventListener("click", () => copyOut(buildTsv(), "Tabel"));
-$("#btnCopyMd").addEventListener("click", () => copyOut(buildMd(), "Ringkasan"));
 $("#traceBody").innerHTML = TRACE_EMPTY;
 setSteps(false);
 
